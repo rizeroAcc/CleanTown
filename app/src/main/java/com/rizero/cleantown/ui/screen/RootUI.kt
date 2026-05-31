@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.Dialog
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.StackAnimation
+import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.arkivanov.decompose.router.slot.child
 import com.rizero.cleantown.ui.component.RootComponent
 import com.rizero.feature_request_permissions.ui.RequestPermissionScreen
@@ -16,6 +17,7 @@ import com.rizero.featutre_signin.ui.screen.SignInScreen
 
 @Composable
 fun RootScreen(rootComponent: RootComponent){
+    val permissionRequestDialog = rootComponent.permissionDialogSlot.subscribeAsState()
     Scaffold() { innerPadding->
         Children(
             stack = rootComponent.stack,
@@ -25,7 +27,7 @@ fun RootScreen(rootComponent: RootComponent){
                 is RootComponent.Child.SignInC -> SignInScreen()
             }
         }
-        rootComponent.permissionDialogSlot.child?.let {
+        permissionRequestDialog.value.child?.let {
             Dialog(onDismissRequest = {
 
             }) {
