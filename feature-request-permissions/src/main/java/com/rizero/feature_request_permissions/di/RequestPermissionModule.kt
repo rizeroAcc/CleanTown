@@ -21,6 +21,7 @@ class PermissionConfigModule {
     @Single
     fun providePermissionsMap(): Map<String, String> = buildMap {
         put("Доступ к камере", Manifest.permission.CAMERA)
+        put("Доступ к текущему местоположению", Manifest.permission.ACCESS_FINE_LOCATION)
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
             put("Доступ к внешнему хранилищу", Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }

@@ -29,6 +29,8 @@ kotlinxSerialization = "1.9.0"
 
 cameraXversion = "1.6.0"
 
+coil = "3.4.0"
+
 roomVersion = "2.8.4"
 appcompat = "1.7.1"
 material = "1.10.0"
@@ -88,6 +90,9 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 maplibre-compose = { module = "org.maplibre.compose:maplibre-compose", version = "0.13.0" }
+
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil"}
+coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil"}
 
 [bundles]
 room-base = ["room-runtime", "room-ktx-extensions"]

@@ -1,5 +1,7 @@
 package com.rizero.feature_request_permissions.ui
 
+import android.Manifest
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -18,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -36,7 +41,17 @@ import com.rizero.shared_ui.AppColors
 fun RequestPermissionScreen(requestPermissionComponent: RequestPermissionComponent){
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+
+            .clip(RoundedCornerShape(12.dp))
+            .background(AppColors.dialogBackgroundColor)
+            .padding(12.dp)
+            .sizeIn(
+                minWidth = 200.dp,
+                minHeight = 200.dp,
+                maxWidth = 320.dp,
+                maxHeight = 600.dp,
+            )
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -46,7 +61,7 @@ fun RequestPermissionScreen(requestPermissionComponent: RequestPermissionCompone
         ) {
             Text(
                 text = "Для работы приложения необходимы следующие разрешения. Пожалуйста предоставьте доступ к ним.",
-                fontSize = 18.sp,
+                fontSize = 16.sp,
                 color = Color.White,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 20.dp)
@@ -57,20 +72,23 @@ fun RequestPermissionScreen(requestPermissionComponent: RequestPermissionCompone
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier =
                         Modifier
-                            .border(width = 1.dp, shape = RectangleShape, color = Color.White)
+                            .padding(bottom = 2.dp)
+                            .border(width = 1.dp, shape = RoundedCornerShape(8.dp), color = Color.White)
                             .fillMaxWidth()
                 ) {
                     Text(
                         text = "$permissionName: ",
                         fontSize = 18.sp,
                         color = Color.White,
-                        modifier = Modifier.padding(start = 16.dp)
+                        modifier = Modifier
+                            .widthIn(80.dp,200.dp)
+                            .padding(start = 16.dp)
                     )
                     Icon(
                         imageVector = if (granted)
-                            ImageVector.vectorResource(R.drawable.check)
+                            ImageVector.vectorResource(R.drawable.check_circle)
                         else
-                            ImageVector.vectorResource(R.drawable.cross),
+                            ImageVector.vectorResource(R.drawable.cross_circle),
                         contentDescription = if (granted)
                             "Доступ предоставлен"
                         else
@@ -104,7 +122,8 @@ fun RequestPermissionScreenPreview(){
     RequestPermissionScreen(MockRequestPermissionComponent(
         mapOf(
             "Доступ к хранилищу" to true,
-            "Доступ к камере" to false
+            "Доступ к камере" to false,
+            "Доступ к текущему местоположению" to false
         )
     ))
 }

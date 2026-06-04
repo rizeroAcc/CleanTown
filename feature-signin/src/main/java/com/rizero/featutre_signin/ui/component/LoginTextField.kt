@@ -51,7 +51,8 @@ fun LoginTextField(
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = AppColors.textFieldBackgroundColor,
                 focusedContainerColor = AppColors.textFieldBackgroundColor,
-                focusedTextColor = Color.White
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
             ),
             shape = RoundedCornerShape(12.dp),
             singleLine = true,

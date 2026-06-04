@@ -50,12 +50,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import com.rizero.feature_sqare_list.R
+import com.rizero.feature_sqare_list.component.MockSquareListComponent
+import com.rizero.feature_sqare_list.component.SquareListComponent
 import com.rizero.feature_sqare_list.ui.component.SquareListItem
 import com.rizero.feature_sqare_list.ui.component.TwoSegmentAnimatedSwitch
 import com.rizero.feature_sqare_list.ui.component.TwoSegmentAnimatedSwitchPosition
 import com.rizero.shared_ui.AppColors
+import org.maplibre.compose.camera.CameraPosition
+import org.maplibre.compose.camera.rememberCameraState
 import org.maplibre.compose.map.MaplibreMap
 import org.maplibre.compose.style.BaseStyle
+import org.maplibre.compose.style.rememberStyleState
+import org.maplibre.spatialk.geojson.Position
 
 enum class SelectedSquareDisplay{
     LIST,
@@ -63,8 +69,8 @@ enum class SelectedSquareDisplay{
 }
 
 @Composable
-fun SquareListScree(synchronized: Boolean, selectedSquareDisplay: SelectedSquareDisplay){
-    var selectedSquareDisplay by remember { mutableStateOf(selectedSquareDisplay) }
+fun SquareListScreen(squareListComponent: SquareListComponent, synchronized: Boolean = true){
+    var selectedSquareDisplay by remember { mutableStateOf(SelectedSquareDisplay.LIST) }
     var nearestSquaresExpanded by remember { mutableStateOf(false) }
     var allSquaresExpanded by remember { mutableStateOf(false) }
     Column(
@@ -206,15 +212,21 @@ fun SquareListScree(synchronized: Boolean, selectedSquareDisplay: SelectedSquare
                 ) {
                     LazyColumn() {
                         item {
-                            SquareListItem(1,true,"ул. Ленина 10", 250)
+                            SquareListItem(1,true,"ул. Ленина 10", 250){
+                                squareListComponent.openGarbageSite()
+                            }
                             HorizontalDivider()
                         }
                         item {
-                            SquareListItem(2,false,"ул. Крынина 12", 560)
+                            SquareListItem(2,false,"ул. Крынина 12", 560){
+                                squareListComponent.openGarbageSite()
+                            }
                             HorizontalDivider()
                         }
                         item {
-                            SquareListItem(3,true,"ул. Ломоносова 23", 1100)
+                            SquareListItem(3,true,"ул. Ломоносова 23", 1100){
+                                squareListComponent.openGarbageSite()
+                            }
                             HorizontalDivider()
                         }
                     }
@@ -253,42 +265,59 @@ fun SquareListScree(synchronized: Boolean, selectedSquareDisplay: SelectedSquare
                 ) {
                     LazyColumn() {
                         item {
-                            SquareListItem(1,true,"ул. Ленина 10", 250)
+                            SquareListItem(1,true,"ул. Ленина 10", 250){
+                                squareListComponent.openGarbageSite()
+                            }
                             HorizontalDivider()
                         }
                         item {
-                            SquareListItem(2,false,"ул. Крынина 12", 560)
+                            SquareListItem(2,false,"ул. Крынина 12", 560){
+                                squareListComponent.openGarbageSite()
+                            }
                             HorizontalDivider()
                         }
                         item {
-                            SquareListItem(3,true,"ул. Ломоносова 23", 1100)
+                            SquareListItem(3,true,"ул. Ломоносова 23", 1100){
+                                squareListComponent.openGarbageSite()
+                            }
                             HorizontalDivider()
                         }
                         item {
-                            SquareListItem(4,false,"ул. Ломоносова 45", 1300)
+                            SquareListItem(4,false,"ул. Ломоносова 45", 1300){
+                                squareListComponent.openGarbageSite()
+                            }
                             HorizontalDivider()
                         }
                         item {
-                            SquareListItem(5,false,"ул. Ломоносова 117", 1800)
+                            SquareListItem(5,false,"ул. Ломоносова 117", 1800){
+                                squareListComponent.openGarbageSite()
+                            }
                             HorizontalDivider()
                         }
                     }
                 }
             } else {
+                val cameraState = rememberCameraState(CameraPosition(
+                    zoom = 16.0,
+                    target = Position(latitude = 51.657063, longitude = 39.205146)
+                ))
+                val styleState = rememberStyleState()
                 MaplibreMap(
                     baseStyle = BaseStyle.Uri("https://tiles.openfreemap.org/styles/liberty"),
+                    cameraState = cameraState,
+                    styleState = styleState,
                     modifier = Modifier.padding(2.dp)
                 )
             }
-
-
         }
         Button(
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = AppColors.buttonBackgroundColor
             ),
-            onClick = {},
+            onClick = {
+                squareListComponent.finishShift()
+            },
             modifier = Modifier
                 .padding(vertical = 24.dp)
                 .fillMaxWidth(0.7f)
@@ -305,11 +334,11 @@ fun SquareListScree(synchronized: Boolean, selectedSquareDisplay: SelectedSquare
 @Composable
 @Preview(showBackground = true, )
 fun LoadedSynchronizedSquareListScreenPreview(){
-    SquareListScree(true, SelectedSquareDisplay.LIST)
+    SquareListScreen(squareListComponent = MockSquareListComponent(),true)
 }
 
 @Composable
 @Preview(showBackground = true, )
 fun LoadedUnsynchronizedSquareListScreenPreview(){
-    SquareListScree(false, SelectedSquareDisplay.MAP)
+    SquareListScreen(squareListComponent = MockSquareListComponent(),false)
 }

@@ -52,6 +52,7 @@ dependencies {
     implementation(project(":feature-trashsite"))
     implementation(project(":feature-request-permissions"))
     implementation(project(":feature-take-photo"))
+    implementation(project(":feature-finish-shift"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -1,7 +1,5 @@
-package com.rizero.cleantown.ui.component
+package com.rizero.cleantown.component
 
-import android.content.Context
-import androidx.activity.result.ActivityResultCallback
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.slot.ChildSlot
 import com.arkivanov.decompose.router.slot.SlotNavigation
@@ -10,17 +8,18 @@ import com.arkivanov.decompose.router.slot.childSlot
 import com.arkivanov.decompose.router.slot.dismiss
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
+import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.value.Value
-import com.rizero.cleantown.ui.component.RootComponent.Child.*
-import com.rizero.feature_request_permissions.component.DefaultRequestPermissionComponent
+import com.rizero.cleantown.component.RootComponent.Child.*
 import com.rizero.feature_request_permissions.component.RequestPermissionComponent
-import com.rizero.featutre_signin.component.DefaultSignInComponent
 import com.rizero.featutre_signin.component.SignInComponent
 import kotlinx.serialization.Serializable
 
 class RootComponent(
     componentContext: ComponentContext,
     val requestPermissionComponentFactory: RequestPermissionComponent.Factory,
+    val shiftFlowComponentFactory: ShiftFlowComponent.Factory,
+    val signInComponentFactory: SignInComponent.Factory,
     val onPermissionRequest: (permissions: Array<String>, callback: () ->Unit ) -> Unit,
 ) : ComponentContext by componentContext{
 
@@ -30,7 +29,7 @@ class RootComponent(
     val stack = childStack(
         source = navigation,
         serializer = Config.serializer(),
-        initialConfiguration = Config.SignIn,
+        initialConfiguration = Config.SignIn(),
         handleBackButton = true,
         childFactory = ::createChild
     )
@@ -59,7 +58,24 @@ class RootComponent(
         newComponentContext : ComponentContext,
     ) : Child{
         return when(config){
-            Config.SignIn -> SignInC(DefaultSignInComponent(newComponentContext))
+            is Config.SignIn -> SignInC(
+                signInComponentFactory(
+                    componentContext = newComponentContext,
+                    onAuthorizedCallback = {
+                        navigation.replaceAll(Config.ShiftFlowComponent())
+                    }
+                )
+            )
+            is Config.ShiftFlowComponent -> ShiftFlowC(
+                shiftFlowComponentFactory(
+                    componentContext = newComponentContext,
+                    finishShiftCallback = {
+                        //TODO
+                    }
+                )
+            )
+
+            is Config.ShiftFinishFlowComponent -> TODO()
         }
     }
 
@@ -73,6 +89,8 @@ class RootComponent(
 
     sealed class Child {
         class SignInC(val signInComponent: SignInComponent) : Child()
+        class ShiftFlowC(val shiftFlowComponent: ShiftFlowComponent) : Child()
+        class ShiftFinishFlowC : Child()
     }
 
     @Serializable
@@ -81,6 +99,11 @@ class RootComponent(
     )
     @Serializable
     sealed interface Config {
-        data object SignIn : Config
+        @Serializable
+        class SignIn : Config
+        @Serializable
+        class ShiftFlowComponent : Config
+        @Serializable
+        class ShiftFinishFlowComponent : Config
     }
 }

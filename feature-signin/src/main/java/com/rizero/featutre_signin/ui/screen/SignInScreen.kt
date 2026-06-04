@@ -41,12 +41,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rizero.featutre_signin.R
+import com.rizero.featutre_signin.component.MockSignInComponent
+import com.rizero.featutre_signin.component.SignInComponent
 import com.rizero.featutre_signin.ui.component.LoginTextField
 import com.rizero.featutre_signin.ui.component.PasswordTextField
 import com.rizero.shared_ui.AppColors
 
 @Composable
-fun SignInScreen(){
+fun SignInScreen(signInComponent: SignInComponent){
+    var login by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -71,15 +75,14 @@ fun SignInScreen(){
         Image(
             painter = painterResource(R.drawable.truck_logo),
             contentDescription = "truck logo",
-            contentScale = ContentScale.FillBounds,
+            contentScale = ContentScale.Crop,
             alpha = 0.9f,
             modifier = Modifier
                 .padding(top = 16.dp)
                 .fillMaxWidth()
                 .height(180.dp)
         )
-        var login by remember { mutableStateOf("") }
-        var password by remember { mutableStateOf("") }
+
         LoginTextField(
             value = login,
             onValueChange = {
@@ -104,7 +107,9 @@ fun SignInScreen(){
         )
 
         Button(
-            onClick = {},
+            onClick = {
+                signInComponent.onAuthorized()
+            },
             colors = ButtonDefaults.buttonColors(
                 containerColor = AppColors.buttonBackgroundColor
             ),
@@ -121,5 +126,5 @@ fun SignInScreen(){
 @Composable
 @Preview(showBackground = true)
 fun SingInDefaultPreview(){
-    SignInScreen()
+    SignInScreen(MockSignInComponent())
 }

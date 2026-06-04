@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -24,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -35,10 +33,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rizero.feature_trashsite.R
+import com.rizero.feature_trashsite.component.GarbageSiteComponent
+import com.rizero.feature_trashsite.component.MockGarbageSiteComponent
 import com.rizero.shared_ui.AppColors
 
 @Composable
-fun TrashsiteScreen(){
+fun GarbageSiteScreen(garbageSiteComponent: GarbageSiteComponent){
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -54,7 +54,7 @@ fun TrashsiteScreen(){
         ) {
             IconButton(
                 onClick = {
-
+                    garbageSiteComponent.navigateBack()
                 }
             ) {
                 Icon(
@@ -106,7 +106,9 @@ fun TrashsiteScreen(){
                     .size(width = 300.dp, height = 180.dp)
             )
             Button(
-                onClick = {},
+                onClick = {
+                    garbageSiteComponent.takePhoto()
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = AppColors.buttonBackgroundColor
                 ),
@@ -141,7 +143,9 @@ fun TrashsiteScreen(){
                     .size(width = 300.dp, height = 180.dp)
             )
             Button(
-                onClick = {},
+                onClick = {
+                    garbageSiteComponent.takePhoto()
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = AppColors.buttonBackgroundColor
                 ),
@@ -157,7 +161,10 @@ fun TrashsiteScreen(){
             }
             HorizontalDivider()
             Button(
-                onClick = {},
+                onClick = {
+                    //todo временно
+                    garbageSiteComponent.navigateBack()
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = AppColors.lightBackgroundColor
                 ),
@@ -175,6 +182,6 @@ fun TrashsiteScreen(){
 
 @Composable
 @Preview
-fun TrashsiteScreenPreview(){
-     TrashsiteScreen()
+fun GarbageSiteScreenPreview(){
+     GarbageSiteScreen(MockGarbageSiteComponent())
 }

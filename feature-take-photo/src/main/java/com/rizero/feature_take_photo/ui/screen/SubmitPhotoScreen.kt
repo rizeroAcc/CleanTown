@@ -29,13 +29,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import com.rizero.feature_take_photo.R
+import com.rizero.feature_take_photo.component.MockSubmitPhotoComponent
+import com.rizero.feature_take_photo.component.SubmitPhotoComponent
 import com.rizero.shared_ui.AppColors
 import kotlinx.coroutines.channels.ticker
 
 @Composable
-fun SubmitPhotoScreen(photoLoaded : Boolean){
-    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+fun SubmitPhotoScreen(submitPhotoComponent: SubmitPhotoComponent,photoLoaded : Boolean = true){
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -62,33 +64,23 @@ fun SubmitPhotoScreen(photoLoaded : Boolean){
                 )
             }
         }else{
-            if (imageBitmap != null){
-                Image(
-                    bitmap = imageBitmap!!,
-                    contentDescription = "Фото",
-                    contentScale = ContentScale.FillBounds,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(0.8f)
-                )
-            }else{
-                //TODO Только для preview потом исправить
-                Image(
-                    painter = painterResource(R.drawable.img),
-                    contentScale = ContentScale.FillBounds,
-                    contentDescription = "Фото",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(0.8f)
-                )
-            }
+            AsyncImage(
+                model = submitPhotoComponent.photoURI,
+                contentDescription = "Фото площадки",
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .fillMaxSize(0.8f)
+            )
         }
         Button(
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = AppColors.buttonBackgroundColor
             ),
-            onClick = {},
+            onClick = {
+                submitPhotoComponent.onAcceptPhoto()
+            },
             modifier = Modifier
                 .padding(vertical = 16.dp)
                 .fillMaxWidth(0.6f)
@@ -99,7 +91,9 @@ fun SubmitPhotoScreen(photoLoaded : Boolean){
             colors = ButtonDefaults.buttonColors(
                 containerColor = AppColors.lightBackgroundColor
             ),
-            onClick = {},
+            onClick = {
+                submitPhotoComponent.onDeclinePhoto()
+            },
             modifier = Modifier.fillMaxWidth(0.6f)
         ) {
             Text("Переснять")
@@ -110,11 +104,17 @@ fun SubmitPhotoScreen(photoLoaded : Boolean){
 @Composable
 @Preview
 fun SubmitPhotoScreenLoadingPreview(){
-    SubmitPhotoScreen(photoLoaded = false)
+    SubmitPhotoScreen(
+        submitPhotoComponent = MockSubmitPhotoComponent(),
+        photoLoaded = false
+    )
 }
 
 @Composable
 @Preview
 fun SubmitPhotoScreenLoadedPreview(){
-    SubmitPhotoScreen(photoLoaded = true)
+    SubmitPhotoScreen(
+        submitPhotoComponent = MockSubmitPhotoComponent(),
+        photoLoaded = true
+    )
 }

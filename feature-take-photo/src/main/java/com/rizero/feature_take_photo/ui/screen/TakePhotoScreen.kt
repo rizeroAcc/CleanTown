@@ -1,9 +1,21 @@
 package com.rizero.feature_take_photo.ui.screen
 
-import android.widget.ImageButton
+import android.content.ContentValues
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Matrix
+import android.graphics.Paint
+import android.graphics.Typeface
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
 import androidx.camera.compose.CameraXViewfinder
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.viewfinder.core.ImplementationMode
@@ -42,10 +54,15 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.rizero.feature_take_photo.R
+import com.rizero.feature_take_photo.component.MockTakePhotoComponent
+import com.rizero.feature_take_photo.component.TakePhotoComponent
 import com.rizero.shared_ui.AppColors
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.concurrent.Executor
 
 @Composable
-fun TakePhotoScreen(){
+fun TakePhotoScreen(takePhotoComponent: TakePhotoComponent){
 
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -156,15 +173,23 @@ fun TakePhotoScreen(){
                     modifier = Modifier.fillMaxSize()
                 )
                 IconButton(
-                    onClick = {},
+                    onClick = {
+                        takePhoto(
+                            imageCapture = imageCapture,
+                            executor = mainExecutor,
+                            context = context,
+                        ){ uri->
+                            takePhotoComponent.onPhotoTaken(uri)
+                        }
+                    },
                     modifier = Modifier.align(Alignment.BottomCenter)
                 ) {
                     Image(
                         imageVector = ImageVector.vectorResource(R.drawable.photo_camera),
                         contentDescription = "Сделать фото",
                         modifier = Modifier
-                            .padding(8.dp)
-                            .size(48.dp)
+                            .padding(bottom = 24.dp)
+                            .size(60.dp)
                     )
                 }
             }
@@ -172,8 +197,113 @@ fun TakePhotoScreen(){
     }
 }
 
+private fun takePhoto(
+    imageCapture: ImageCapture?,
+    executor: Executor,
+    context: Context,
+    callback: (Uri) -> Unit
+) {
+    if (imageCapture == null) return
+
+    imageCapture.takePicture(
+        executor,
+        object : ImageCapture.OnImageCapturedCallback() {
+            override fun onCaptureSuccess(image: ImageProxy) {
+                val originalBitmap = image.toRotatedBitmap()
+                image.close()
+
+                // Добавляем водяной знак
+                val watermarkedBitmap = addWatermark(originalBitmap)
+
+                // Сохраняем с водяным знаком
+                saveBitmapWithWatermark(context, watermarkedBitmap, callback)
+            }
+
+            override fun onError(exception: ImageCaptureException) {
+                exception.printStackTrace()
+            }
+        }
+    )
+}
+private fun addWatermark(original: Bitmap): Bitmap {
+    val result = original.copy(Bitmap.Config.ARGB_8888, true)
+    val canvas = Canvas(result)
+
+    val paint = Paint().apply {
+        color = android.graphics.Color.WHITE
+        textSize = 48f
+        isAntiAlias = true
+        typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
+        setShadowLayer(8f, 3f, 3f, android.graphics.Color.BLACK)
+    }
+
+    val dateTime = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
+        .format(System.currentTimeMillis())
+
+    val padding = 50f
+    val yPosition = result.height - 80f
+
+    canvas.drawText(dateTime, padding, yPosition, paint)
+
+    return result
+}
+
+private fun saveBitmapWithWatermark(
+    context: Context,
+    bitmap: Bitmap,
+    callback: (Uri) -> Unit
+) {
+    val name = "CameraX_${System.currentTimeMillis()}.jpg"
+
+    val contentValues = ContentValues().apply {
+        put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+        put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Images")
+        }
+    }
+
+    val uri = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+
+    uri?.let {
+        context.contentResolver.openOutputStream(it)?.use { outputStream ->
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 92, outputStream)
+        }
+        callback(it)
+    }
+}
+
+fun ImageProxy.toRotatedBitmap(): Bitmap {
+    val bitmap = this.toBitmap() // базовое преобразование
+
+    val rotation = imageInfo.rotationDegrees
+    if (rotation == 0) return bitmap
+
+    val matrix = Matrix().apply {
+        postRotate(rotation.toFloat())
+    }
+
+    return Bitmap.createBitmap(
+        bitmap,
+        0,
+        0,
+        bitmap.width,
+        bitmap.height,
+        matrix,
+        true
+    )
+}
+
+fun ImageProxy.toBitmap(): Bitmap {
+    val buffer = planes[0].buffer
+    val bytes = ByteArray(buffer.remaining())
+    buffer.get(bytes)
+    return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+}
+
+
 @Composable
 @Preview
 fun TakePhotoScreenPreview(){
-    TakePhotoScreen()
+    TakePhotoScreen(MockTakePhotoComponent())
 }

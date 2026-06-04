@@ -56,7 +56,7 @@ fun PasswordTextField(
             onValueChange = onValueChange,
             placeholder = {
                 Text(
-                    text = "Введите логин",
+                    text = "Введите пароль",
                     color = Color(0xFF8A8A8A)
                 )
             },
@@ -84,7 +84,8 @@ fun PasswordTextField(
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = AppColors.textFieldBackgroundColor,
                 focusedContainerColor = AppColors.textFieldBackgroundColor,
-                focusedTextColor = Color.White
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
             ),
             shape = RoundedCornerShape(12.dp),
             singleLine = true,

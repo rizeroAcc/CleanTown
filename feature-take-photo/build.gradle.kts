@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.koin.compiler)
+    alias(libs.plugins.kotlin.serialization)
 }
 android {
     namespace = "com.rizero.feature_take_photo"
@@ -63,6 +64,8 @@ dependencies {
     implementation(libs.androidx.camera.video)
     implementation(libs.androidx.camera.extensions)
     implementation(libs.androidx.camera.compose)
+
+    implementation(libs.coil.compose)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
