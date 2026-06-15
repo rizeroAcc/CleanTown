@@ -1,5 +1,7 @@
 package com.rizero.cleantown.di
 
+import com.rizero.core_data.di.DataModule
+import com.rizero.core_database.di.DatabaseModule
 import com.rizero.feature_finish_shift.di.FinishShiftModule
 import com.rizero.feature_request_permissions.di.PermissionConfigModule
 import com.rizero.feature_request_permissions.di.RequestPermissionModule
@@ -13,6 +15,8 @@ import org.koin.core.annotation.KoinApplication
     modules = [
         PermissionConfigModule::class,
         RequestPermissionModule::class,
+        DatabaseModule::class,
+        DataModule::class,
         SignInModule::class,
         GarbageSiteModule::class,
         TakePhotoModule::class,

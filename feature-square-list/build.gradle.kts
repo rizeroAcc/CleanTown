@@ -39,6 +39,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core-data"))
     implementation(project(":shared-ui"))
 
     implementation(libs.androidx.core.ktx)

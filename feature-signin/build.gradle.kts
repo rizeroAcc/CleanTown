@@ -39,6 +39,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core-data"))
     implementation(project(":shared-ui"))
 
     implementation(libs.androidx.core.ktx)
@@ -52,6 +53,8 @@ dependencies {
     implementation(libs.bundles.mvikotlin.corutines)
     implementation(libs.decompose.core)
     implementation(libs.decompose.extensions.compose)
+
+    implementation(libs.essenty.lifecycle.coroutines)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,11 +47,10 @@ import com.rizero.featutre_signin.component.SignInComponent
 import com.rizero.featutre_signin.ui.component.LoginTextField
 import com.rizero.featutre_signin.ui.component.PasswordTextField
 import com.rizero.shared_ui.AppColors
-
+//TODO Сделать вывод ошибок
 @Composable
 fun SignInScreen(signInComponent: SignInComponent){
-    var login by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    val state by signInComponent.state.collectAsState()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -84,9 +84,9 @@ fun SignInScreen(signInComponent: SignInComponent){
         )
 
         LoginTextField(
-            value = login,
-            onValueChange = {
-                login = it
+            value = state.login,
+            onValueChange = { newLogin->
+                signInComponent.changeLogin(newLogin)
             },
             supportingTextSize = 16.sp,
             modifier = Modifier
@@ -95,9 +95,9 @@ fun SignInScreen(signInComponent: SignInComponent){
                 .fillMaxWidth()
         )
         PasswordTextField(
-            value = password,
-            onValueChange = {
-                password = it
+            value = state.password,
+            onValueChange = { newPassword->
+                signInComponent.changePassword(newPassword)
             },
             supportingTextSize = 16.sp,
             modifier = Modifier
@@ -107,11 +107,13 @@ fun SignInScreen(signInComponent: SignInComponent){
         )
 
         Button(
+            enabled = !state.authorizing,
             onClick = {
-                signInComponent.onAuthorized()
+                signInComponent.startAuthorization()
             },
             colors = ButtonDefaults.buttonColors(
-                containerColor = AppColors.buttonBackgroundColor
+                containerColor = AppColors.buttonBackgroundColor,
+                disabledContainerColor = AppColors.lightBackgroundColor
             ),
             modifier = Modifier
                 .padding(24.dp)
