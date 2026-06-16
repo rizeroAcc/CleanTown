@@ -101,23 +101,24 @@ class GarbageSiteListStoreFactory(
                             dispatch(
                                 WaybillLoaded(
                                     Waybill(
-                                        number = 532,
                                         date = "27.05.2026",
                                         driver = "Вася пупкин",
                                         garbageSites = listOf(
                                             GarbageSite(
-                                                guid = UUID.randomUUID().toString(),
+                                                id = UUID.randomUUID().toString(),
                                                 address = "Ломоносова 10",
                                                 longitude = 51.252,
                                                 latitude = 32.245,
                                                 distanceTo = 100,
+                                                report = null,
                                             ),
                                             GarbageSite(
-                                                guid = UUID.randomUUID().toString(),
+                                                id = UUID.randomUUID().toString(),
                                                 address = "9-е января 285",
                                                 longitude = 51.2564,
                                                 latitude = 32.432,
                                                 distanceTo = 300,
+                                                report = null,
                                             )
                                         ),
                                         id = UUID.randomUUID().toString()

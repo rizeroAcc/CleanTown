@@ -28,7 +28,7 @@ private val PASSWORD_KEY = stringPreferencesKey("driver_password")
 
 @Single
 class DefaultDriverRepository(
-    private val context: Context,
+    context: Context,
     private val authService: AuthService,
 ) : DriverRepository {
     private val dataStore = context.driverDataStore

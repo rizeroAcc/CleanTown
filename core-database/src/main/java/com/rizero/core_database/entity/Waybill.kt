@@ -14,5 +14,4 @@ data class Waybill(
     val id : UUID,
     val driver : String,
     val date : String,
-    val number : Int,
 )

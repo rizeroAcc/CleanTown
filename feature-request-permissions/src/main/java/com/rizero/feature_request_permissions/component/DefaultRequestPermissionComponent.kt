@@ -6,6 +6,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.result.ActivityResultCallback
 import com.arkivanov.decompose.ComponentContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import org.koin.core.annotation.Single
 
 class DefaultRequestPermissionComponent(
@@ -15,27 +17,35 @@ class DefaultRequestPermissionComponent(
     val onPermissionRequest : (permissions : Array<String>, callback : () -> Unit) -> Unit,
     val onAllPermissionsGranted : () -> Unit,
 ) : RequestPermissionComponent, ComponentContext by componentContext{
-    override val permissionStatus: MutableMap<String, Boolean> = requiredPermissions.mapValues{
-        false
-    }.toMutableMap()
+
+    private var isRequesting = false
+    override val permissionStatus = MutableStateFlow(
+        value = requiredPermissions
+            .mapValues{
+                false
+            }
+            .toMap()
+    )
 
     val requestPermissionsCallback = {
+            isRequesting = false
             updatePermissionStatus(androidContext)
-            if (allPermissionsGranted(permissionStatus)){
+            if (allPermissionsGranted(permissionStatus.value)){
                 onAllPermissionsGranted()
             }
         }
 
     init {
         updatePermissionStatus(androidContext)
-        if (allPermissionsGranted(permissionStatus)){
+        if (allPermissionsGranted(permissionStatus.value)){
             onAllPermissionsGranted()
         }
     }
 
     override fun requestPermissions() {
+        if (isRequesting) return
         val permissionsToRequest = requiredPermissions
-            .filter { (uiName, _) -> permissionStatus[uiName] == false }
+            .filter { (uiName, _) -> permissionStatus.value[uiName] == false }
             .map { it.value } // Manifest.permission
             .toTypedArray()
         onPermissionRequest(
@@ -53,13 +63,13 @@ class DefaultRequestPermissionComponent(
     }
 
     private fun updatePermissionStatus(context: Context) {
-        permissionStatus.putAll(checkRequiredPermissions(
+        permissionStatus.value = checkRequiredPermissions(
             requiredPermissions,
             context
-        ))
+        )
     }
 
-    private fun allPermissionsGranted(permissionStatus: MutableMap<String, Boolean>) : Boolean {
+    private fun allPermissionsGranted(permissionStatus: Map<String, Boolean>) : Boolean {
         var allGranted = true
         permissionStatus.forEach { (_, granted) ->
             allGranted = allGranted && granted

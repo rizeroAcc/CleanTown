@@ -1,19 +1,6 @@
 package com.rizero.feature_sqare_list.ui.screen
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,11 +9,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -35,32 +19,25 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.times
-import com.rizero.core_data.model.Driver
 import com.rizero.core_data.model.GarbageSite
 import com.rizero.core_data.model.Waybill
 import com.rizero.feature_sqare_list.R
 import com.rizero.feature_sqare_list.component.MockSquareListComponent
 import com.rizero.feature_sqare_list.component.SquareListComponent
 import com.rizero.feature_sqare_list.store.GarbageSiteListStore
-import com.rizero.feature_sqare_list.ui.component.SquareListItem
 import com.rizero.feature_sqare_list.ui.component.TwoSegmentAnimatedSwitch
 import com.rizero.feature_sqare_list.ui.component.TwoSegmentAnimatedSwitchPosition
 import com.rizero.feature_sqare_list.ui.component.WaybillSitesList
@@ -108,7 +85,7 @@ fun SquareListScreen(squareListComponent: SquareListComponent, synchronized: Boo
                     text = if (state.waybill == null)
                         "Загрузка путевого листа"
                     else
-                        "Путевой лист №${state.waybill!!.number} от ${state.waybill!!.date}",
+                        "Путевой лист от ${state.waybill!!.date}",
                     fontSize = 12.sp,
                     color = Color.White,
                     modifier = Modifier.padding(top = 4.dp)
@@ -255,16 +232,16 @@ fun LoadedSynchronizedSquareListScreenPreview(){
     SquareListScreen(squareListComponent = MockSquareListComponent(
         mockState = MutableStateFlow(GarbageSiteListStore.State(
             waybill = Waybill(
-                number = 532,
                 date = "27.05.2026",
                 driver = "Вася пупкин",
                 garbageSites = listOf(
                     GarbageSite(
-                        guid = UUID.randomUUID().toString(),
+                        id = UUID.randomUUID().toString(),
                         address = "Ломоносова 10",
                         longitude = 51.252,
                         latitude = 32.245,
                         distanceTo = 100,
+                        report = null,
                     )
                 ),
                 id = UUID.randomUUID().toString()

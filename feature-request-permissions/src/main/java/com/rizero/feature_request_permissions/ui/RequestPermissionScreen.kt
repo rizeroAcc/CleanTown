@@ -20,6 +20,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,10 +41,11 @@ import com.rizero.shared_ui.AppColors
 
 @Composable
 fun RequestPermissionScreen(requestPermissionComponent: RequestPermissionComponent){
+
+    val permissionStatus by requestPermissionComponent.permissionStatus.collectAsState()
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-
             .clip(RoundedCornerShape(12.dp))
             .background(AppColors.dialogBackgroundColor)
             .padding(12.dp)
@@ -66,7 +69,7 @@ fun RequestPermissionScreen(requestPermissionComponent: RequestPermissionCompone
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 20.dp)
             )
-            for ((permissionName, granted) in requestPermissionComponent.permissionStatus){
+            for ((permissionName, granted) in permissionStatus){
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,

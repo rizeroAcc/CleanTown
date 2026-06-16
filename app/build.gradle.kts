@@ -49,6 +49,7 @@ room {
 dependencies {
     implementation(project(":core-database"))
     implementation(project(":core-data"))
+    implementation(project(":core-network"))
 
     implementation(project(":feature-square-list"))
     implementation(project(":feature-signin"))

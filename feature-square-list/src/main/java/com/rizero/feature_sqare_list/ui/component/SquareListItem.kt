@@ -1,11 +1,5 @@
 package com.rizero.feature_sqare_list.ui.component
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,12 +15,9 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
@@ -36,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rizero.core_data.model.GarbageSite
 import com.rizero.feature_sqare_list.R
-import com.rizero.shared_ui.AppColors
 import java.util.UUID
 
 @Composable
@@ -131,21 +121,23 @@ fun SquareListItemPreview(){
     Column() {
         SquareListItem(
             garbageSite = GarbageSite(
-                guid = UUID.randomUUID().toString(),
+                id = UUID.randomUUID().toString(),
                 address = "Ломоносова 10",
                 longitude = 51.252,
                 latitude = 32.245,
                 distanceTo = 100,
+                report = null,
             ),
             number = 1
         ) { }
         SquareListItem(
             garbageSite = GarbageSite(
-                guid = UUID.randomUUID().toString(),
+                id = UUID.randomUUID().toString(),
                 address = "Ломоносова 53",
                 longitude = 51.252,
                 latitude = 32.245,
                 distanceTo = null,
+                report = null,
             ),
             number = 2
         ) { }

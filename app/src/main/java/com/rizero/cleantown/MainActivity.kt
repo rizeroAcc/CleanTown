@@ -20,15 +20,22 @@ import org.koin.plugin.module.dsl.startKoin
 
 
 class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        var permissionRequestCallback : Function0<Unit>? = null
-        val permissionRequestLauncher = registerForActivityResult(
-            contract = ActivityResultContracts.RequestMultiplePermissions(),
-        ){
-            permissionRequestCallback?.let {
-                it()
-            }
+
+    var permissionRequestCallback : Function0<Unit>? = null
+    val permissionRequestLauncher = registerForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+    ){
+        permissionRequestCallback?.let {
+            it()
         }
+    }
+    private fun launchPermissions(permissions: Array<String>) {
+        if (permissions.isNotEmpty()) {
+            permissionRequestLauncher.launch(permissions)
+        }
+    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         startKoin<KoinInstance> {
             androidContext(this@MainActivity)
@@ -43,7 +50,7 @@ class MainActivity : ComponentActivity() {
             signInComponentFactory = signInComponentFactory,
             onPermissionRequest = { permissions, callback ->
                 permissionRequestCallback = callback
-                permissionRequestLauncher.launch(permissions)
+                launchPermissions(permissions)
             },
         )
         enableEdgeToEdge()

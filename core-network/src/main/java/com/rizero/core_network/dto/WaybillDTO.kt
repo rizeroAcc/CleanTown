@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class WaybillDTO(
+    val id : String,
     val driver : String,
     val date : String,
     val number : Int,

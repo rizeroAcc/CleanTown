@@ -18,6 +18,10 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -81,21 +85,67 @@ fun GarbageSiteScreen(garbageSiteComponent: GarbageSiteComponent){
             }
         }
         HorizontalDivider()
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp)
+        ) {
+            Text(
+                text = "Мусор вывезен",
+                color = AppColors.defaultTextColor,
+                fontSize = 18.sp,
+                modifier = Modifier.weight(1f)
+            )
+            Switch(
+                checked = true,
+                onCheckedChange = {}
+            )
+        }
+        HorizontalDivider()
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 8.dp)
+        ){
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+            ) {
+                Text(
+                    text = "Причина невывоза:",
+                    color = AppColors.defaultTextColor,
+                    fontSize = 14.sp,
+                )
+                Text(
+                    text = "Не указана",
+                    color = Color.LightGray,
+                    fontSize = 14.sp,
+                )
+            }
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.arrow_forward),
+                contentDescription = "Выбрать причину невыаоза",
+                tint = Color.White
+            )
+        }
+        HorizontalDivider()
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxHeight()
+            modifier = Modifier.weight(1f)
         ) {
             Text(
                 text = "Фото до забора мусора",
-                fontSize = 20.sp,
+                fontSize = 18.sp,
                 color = Color.White,
-                modifier = Modifier.padding(vertical = 12.dp)
+                modifier = Modifier.padding(bottom = 12.dp)
             )
             Image(
                 painter = painterResource(R.drawable.no_photo),
                 contentDescription = "Фото не сделано",
-                contentScale = ContentScale.FillBounds,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .border(
                         width = 2.dp,
@@ -103,7 +153,7 @@ fun GarbageSiteScreen(garbageSiteComponent: GarbageSiteComponent){
                         shape = RoundedCornerShape(16.dp)
                     )
                     .clip(RoundedCornerShape(16.dp))
-                    .size(width = 300.dp, height = 180.dp)
+                    .size(width = 200.dp, height = 140.dp)
             )
             Button(
                 onClick = {
@@ -115,7 +165,7 @@ fun GarbageSiteScreen(garbageSiteComponent: GarbageSiteComponent){
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
                     .padding(vertical = 20.dp)
-                    .size(200.dp,60.dp)
+                    .size(200.dp,40.dp)
             ) {
                 Text(
                     "Сделать фото",
@@ -125,7 +175,7 @@ fun GarbageSiteScreen(garbageSiteComponent: GarbageSiteComponent){
             HorizontalDivider()
             Text(
                 text = "Фото после забора мусора",
-                fontSize = 20.sp,
+                fontSize = 18.sp,
                 color = Color.White,
                 modifier = Modifier.padding(vertical = 12.dp)
             )
@@ -140,7 +190,7 @@ fun GarbageSiteScreen(garbageSiteComponent: GarbageSiteComponent){
                         shape = RoundedCornerShape(16.dp)
                     )
                     .clip(RoundedCornerShape(16.dp))
-                    .size(width = 300.dp, height = 180.dp)
+                    .size(width = 200.dp, height = 140.dp)
             )
             Button(
                 onClick = {
@@ -152,7 +202,7 @@ fun GarbageSiteScreen(garbageSiteComponent: GarbageSiteComponent){
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
                     .padding(vertical = 20.dp)
-                    .size(200.dp,60.dp)
+                    .size(200.dp,40.dp)
             ) {
                 Text(
                     "Сделать фото",
@@ -160,22 +210,23 @@ fun GarbageSiteScreen(garbageSiteComponent: GarbageSiteComponent){
                 )
             }
             HorizontalDivider()
-            Button(
-                onClick = {
-                    //todo временно
-                    garbageSiteComponent.navigateBack()
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = AppColors.lightBackgroundColor
-                ),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier
-                    .padding(vertical = 20.dp)
-                    .fillMaxWidth(0.8f)
-                    .height(50.dp)
-            ) {
-                Text("Перейти к следующей площадке")
-            }
+        }
+
+        Button(
+            onClick = {
+                //todo временно
+                garbageSiteComponent.navigateBack()
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = AppColors.lightBackgroundColor
+            ),
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier
+                .padding(vertical = 20.dp)
+                .fillMaxWidth(0.8f)
+                .height(50.dp)
+        ) {
+            Text("Записать данные площадки")
         }
     }
 }
