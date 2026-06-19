@@ -5,15 +5,13 @@ import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
 import com.rizero.core_data.model.UncollectedReason
 import com.rizero.core_data.repository.UncollectedReasonRepository
-import com.rizero.feature_uncollect_reason.store.UncollectedReasonStore
 import com.rizero.feature_uncollect_reason.store.UncollectedReasonStoreFactory
-import kotlinx.coroutines.flow.StateFlow
 import org.koin.core.annotation.Single
 
 class DefaultUncollectedReasonComponent(
     componentContext: ComponentContext,
     val uncollectedReasonRepository: UncollectedReasonRepository,
-    val onReasonSelected : (UncollectedReason) -> Unit,
+    val onReasonSelectedCallback : (UncollectedReason) -> Unit,
 ) : UncollectedReasonComponent, ComponentContext by componentContext{
     val store = instanceKeeper.getStore {
         UncollectedReasonStoreFactory(
@@ -23,7 +21,7 @@ class DefaultUncollectedReasonComponent(
 
     override val state = store.stateFlow(lifecycle)
     override fun onReasonSelected(selectedReason: UncollectedReason) {
-        onReasonSelected(selectedReason)
+        onReasonSelectedCallback(selectedReason)
     }
 
     @Single
@@ -36,7 +34,7 @@ class DefaultUncollectedReasonComponent(
         ) = DefaultUncollectedReasonComponent(
                 componentContext = componentContext,
                 uncollectedReasonRepository = uncollectedReasonRepository,
-                onReasonSelected = onReasonSelected
+                onReasonSelectedCallback = onReasonSelected
             )
     }
 }

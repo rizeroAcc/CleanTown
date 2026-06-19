@@ -1,6 +1,11 @@
 package com.rizero.feature_sqare_list.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,9 +34,11 @@ import com.rizero.feature_sqare_list.R
 
 @Composable
 fun WaybillSitesList(
+    nearestGarbageSiteList : List<GarbageSite>?,
     garbageSiteList : List<GarbageSite>,
     nearestSquaresExpanded : Boolean = false,
-    allSquaresExpanded : Boolean = false,
+    allSquaresExpanded : Boolean = true,
+    onGarbageSiteSelected : (GarbageSite)->Unit
 ){
 
     var nearestSquaresExpanded by remember { mutableStateOf(nearestSquaresExpanded) }
@@ -63,18 +70,33 @@ fun WaybillSitesList(
     }
     HorizontalDivider()
     AnimatedVisibility(
+        enter = expandVertically() + fadeIn(),
+        exit = shrinkVertically() + fadeOut(),
         visible = nearestSquaresExpanded,
     ) {
         LazyColumn() {
-            itemsIndexed(items = garbageSiteList.take(3)){ index,item->
-                SquareListItem(
-                    garbageSite = item,
-                    number = index + 1,
-                ) {
-
+            if (nearestGarbageSiteList != null){
+                itemsIndexed(items = nearestGarbageSiteList){ index,item->
+                    SquareListItem(
+                        garbageSite = item,
+                        number = index + 1,
+                    ) {
+                        onGarbageSiteSelected(item)
+                    }
+                    HorizontalDivider()
                 }
-                HorizontalDivider()
             }
+            else{
+                items(3){
+                    SquareListItem(
+                        garbageSite = null, number = -1
+                    ) {
+
+                    }
+                    HorizontalDivider()
+                }
+            }
+
         }
     }
 
@@ -107,6 +129,8 @@ fun WaybillSitesList(
     HorizontalDivider()
 
     AnimatedVisibility(
+        enter = expandVertically() + fadeIn(),
+        exit = shrinkVertically() + fadeOut(),
         visible = allSquaresExpanded,
     ) {
         LazyColumn() {
@@ -115,7 +139,7 @@ fun WaybillSitesList(
                     garbageSite = item,
                     number = index + 1,
                 ) {
-
+                    onGarbageSiteSelected(item)
                 }
                 HorizontalDivider()
             }

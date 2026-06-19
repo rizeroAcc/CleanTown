@@ -39,6 +39,9 @@ android {
 }
 
 dependencies {
+    implementation(project(":feature-uncollect-reason"))
+
+    implementation(project(":core-data"))
     implementation(project(":shared-ui"))
 
     implementation(libs.androidx.core.ktx)

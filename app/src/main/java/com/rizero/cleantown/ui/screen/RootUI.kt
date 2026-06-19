@@ -22,7 +22,7 @@ fun RootScreen(rootComponent: RootComponent){
             when(val component = child.instance){
                 is RootComponent.Child.SignInC -> SignInScreen(component.signInComponent)
                 is RootComponent.Child.ShiftFlowC -> ShiftFlowUI(component.shiftFlowComponent)
-                is RootComponent.Child.ShiftFinishFlowC -> TODO()
+                is RootComponent.Child.ShiftFinishFlowC -> FinishShiftFlowUI(component.finishShiftFlowComponent)
 
             }
         }

@@ -1,7 +1,9 @@
 package com.rizero.core_data.repository.impl
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -18,6 +20,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.koin.core.annotation.Single
+import java.security.Permissions
 import kotlin.coroutines.resume
 
 @Single
@@ -114,7 +117,11 @@ class DefaultLocationRepository(
 
     @SuppressLint("MissingPermission")
     override fun getLocationUpdates(intervalMillis : Long): Flow<Location> = callbackFlow {
-        if (!isLocationEnabled()) {
+
+        if (
+            context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+            context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        ){
             close()
             return@callbackFlow
         }
@@ -126,7 +133,7 @@ class DefaultLocationRepository(
         val providers = listOf(
             LocationManager.GPS_PROVIDER,
             LocationManager.NETWORK_PROVIDER
-        ).filter { locationManager.isProviderEnabled(it) }
+        )
 
         try {
             providers.forEach { provider ->

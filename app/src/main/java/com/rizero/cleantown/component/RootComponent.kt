@@ -1,6 +1,7 @@
 package com.rizero.cleantown.component
 
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.arkivanov.decompose.router.slot.ChildSlot
 import com.arkivanov.decompose.router.slot.SlotNavigation
 import com.arkivanov.decompose.router.slot.activate
@@ -14,11 +15,13 @@ import com.rizero.cleantown.component.RootComponent.Child.*
 import com.rizero.feature_request_permissions.component.RequestPermissionComponent
 import com.rizero.featutre_signin.component.SignInComponent
 import kotlinx.serialization.Serializable
+import org.koin.core.annotation.Single
 
 class RootComponent(
     componentContext: ComponentContext,
     val requestPermissionComponentFactory: RequestPermissionComponent.Factory,
     val shiftFlowComponentFactory: ShiftFlowComponent.Factory,
+    val finishShiftFlowComponentFactory : FinishShiftFlowComponent.Factory,
     val signInComponentFactory: SignInComponent.Factory,
     val onPermissionRequest: (permissions: Array<String>, callback: () ->Unit ) -> Unit,
 ) : ComponentContext by componentContext{
@@ -70,12 +73,16 @@ class RootComponent(
                 shiftFlowComponentFactory(
                     componentContext = newComponentContext,
                     finishShiftCallback = {
-                        //TODO
+                        navigation.replaceAll(Config.ShiftFinishFlowComponent())
                     }
                 )
             )
 
-            is Config.ShiftFinishFlowComponent -> TODO()
+            is Config.ShiftFinishFlowComponent -> ShiftFinishFlowC(
+                finishShiftFlowComponentFactory(
+                    componentContext = newComponentContext
+                )
+            )
         }
     }
 
@@ -90,7 +97,7 @@ class RootComponent(
     sealed class Child {
         class SignInC(val signInComponent: SignInComponent) : Child()
         class ShiftFlowC(val shiftFlowComponent: ShiftFlowComponent) : Child()
-        class ShiftFinishFlowC : Child()
+        class ShiftFinishFlowC(val finishShiftFlowComponent: FinishShiftFlowComponent) : Child()
     }
 
     @Serializable
@@ -105,5 +112,24 @@ class RootComponent(
         class ShiftFlowComponent : Config
         @Serializable
         class ShiftFinishFlowComponent : Config
+    }
+    @Single
+    class Factory(
+        val requestPermissionComponentFactory: RequestPermissionComponent.Factory,
+        val shiftFlowComponentFactory: ShiftFlowComponent.Factory,
+        val finishShiftFlowComponentFactory : FinishShiftFlowComponent.Factory,
+        val signInComponentFactory: SignInComponent.Factory,
+    ) {
+        operator fun invoke(
+            componentContext: ComponentContext,
+            onPermissionRequest: (permissions: Array<String>, callback: () ->Unit ) -> Unit
+        ) = RootComponent(
+            componentContext = componentContext,
+            requestPermissionComponentFactory = requestPermissionComponentFactory,
+            shiftFlowComponentFactory = shiftFlowComponentFactory,
+            finishShiftFlowComponentFactory = finishShiftFlowComponentFactory,
+            signInComponentFactory = signInComponentFactory,
+            onPermissionRequest = onPermissionRequest
+        )
     }
 }

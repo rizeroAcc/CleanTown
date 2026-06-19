@@ -38,9 +38,9 @@ fun ShimmerPlaceholder(
 
     val brush = Brush.linearGradient(
         colors = listOf(
-            AppColors.defaultBackgroundColor.copy(alpha = 0.6f),
-            AppColors.defaultBackgroundColor.copy(alpha = 0.9f),
-            AppColors.defaultBackgroundColor.copy(alpha = 0.6f),
+            AppColors.lightBackgroundColor.copy(alpha = 0.6f),
+            AppColors.lightBackgroundColor.copy(alpha = 0.9f),
+            AppColors.lightBackgroundColor.copy(alpha = 0.6f),
         ),
         start = Offset(x = translateAnim - 300f, y = 0f),
         end = Offset(x = translateAnim, y = 270f),
@@ -50,6 +50,6 @@ fun ShimmerPlaceholder(
         modifier = modifier
             .height(50.dp)
             .fillMaxWidth()
-            .background(brush = brush, shape = RoundedCornerShape(8.dp))
+            .background(brush = brush)
     )
 }

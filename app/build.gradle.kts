@@ -33,6 +33,10 @@ android {
                 "proguard-rules.pro"
             )
         }
+        debug {
+            isDebuggable = true
+
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -57,6 +61,7 @@ dependencies {
     implementation(project(":feature-request-permissions"))
     implementation(project(":feature-take-photo"))
     implementation(project(":feature-finish-shift"))
+    implementation(project(":feature-uncollect-reason"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

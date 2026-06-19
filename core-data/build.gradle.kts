@@ -42,7 +42,7 @@ dependencies{
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
 
-    implementation(libs.arrow.core)
+    api(libs.arrow.core)
     implementation(libs.bundles.koin.annotations)
 
     implementation(libs.androidx.datastore.core.android)

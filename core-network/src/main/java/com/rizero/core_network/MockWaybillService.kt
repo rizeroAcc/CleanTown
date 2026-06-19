@@ -24,32 +24,32 @@ class MockWaybillService : WaybillService{
                 GarbageSiteDTO(
                     id = Uuid.random().toString(),
                     address = "ул. Берёзовая Роща, 57",
-                    latitude = 39.23097516039235,
-                    longitude = 51.701506861958606,
+                    latitude = 51.701506861958606,
+                    longitude = 39.23097516039235,
                 ),
                 GarbageSiteDTO(
                     id = Uuid.random().toString(),
                     address = "ул. Кольцовская, 14А",
-                    latitude = 39.203741,
-                    longitude = 51.678854
+                    latitude = 51.678854,
+                    longitude = 39.203741,
                 ),
                 GarbageSiteDTO(
                     id = Uuid.random().toString(),
                     address = "ул. Берёзовая Роща, 57",
-                    latitude = 39.23097516039235,
-                    longitude = 51.701506861958606,
+                    latitude = 51.701506861958606,
+                    longitude = 39.23097516039235,
                 ),
                 GarbageSiteDTO(
                     id = Uuid.random().toString(),
                     address = "пл. Ленина, 1",
-                    latitude = 39.19876331264794,
-                    longitude = 51.660066671731066,
+                    latitude = 51.660066671731066,
+                    longitude = 39.19876331264794,
                 ),
                 GarbageSiteDTO(
                     id = Uuid.random().toString(),
                     address = "ул. 9 Января, 286",
-                    latitude = 39.12767440008125,
-                    longitude = 51.68412687556413,
+                    latitude = 51.68412687556413,
+                    longitude = 39.12767440008125,
                 )
 
             ),

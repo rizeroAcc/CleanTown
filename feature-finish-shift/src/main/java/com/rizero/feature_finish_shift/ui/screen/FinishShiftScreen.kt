@@ -19,11 +19,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import com.rizero.feature_finish_shift.component.FinishShiftComponent
+import com.rizero.feature_finish_shift.component.MockFinishShiftComponent
 import com.rizero.feature_finish_shift.ui.component.UnservedGarbageSiteListItem
+import com.rizero.feature_uncollect_reason.screen.UncollectedReasonDialog
 import com.rizero.shared_ui.AppColors
 
 @Composable
-fun FinishShiftScreen(){
+fun FinishShiftScreen(finishShiftComponent: FinishShiftComponent){
+    val dialog = finishShiftComponent.uncollectedReasonDialog.subscribeAsState()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -95,6 +101,23 @@ fun FinishShiftScreen(){
                 containerColor = AppColors.buttonBackgroundColor
             ),
             onClick = {
+                finishShiftComponent.selectUncollectedReason()
+            },
+            modifier = Modifier
+                .padding(top = 24.dp)
+                .fillMaxWidth(0.7f)
+                .height(50.dp)
+        ) {
+            Text(
+                text = "Выбрать причину невывоза"
+            )
+        }
+        Button(
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = AppColors.buttonBackgroundColor
+            ),
+            onClick = {
 
             },
             modifier = Modifier
@@ -107,10 +130,19 @@ fun FinishShiftScreen(){
             )
         }
     }
+    dialog.value.child?.let { child->
+        Dialog(
+            onDismissRequest = {
+                
+            }
+        ) {
+            UncollectedReasonDialog(child.instance)
+        }
+    }
 }
 
 @Composable
 @Preview
 fun FinishShiftScreenPreview(){
-    FinishShiftScreen()
+    FinishShiftScreen(MockFinishShiftComponent())
 }

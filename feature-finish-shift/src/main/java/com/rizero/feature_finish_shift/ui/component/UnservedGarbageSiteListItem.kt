@@ -30,7 +30,7 @@ fun UnservedGarbageSiteListItem(number : Int, address : String, reason : String?
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .clickable(onClick = onClick)
-            .height(60.dp)
+            .padding(vertical = 12.dp)
             .fillMaxWidth()
     ) {
         Box(
@@ -56,6 +56,7 @@ fun UnservedGarbageSiteListItem(number : Int, address : String, reason : String?
                 modifier = Modifier.padding(start = 16.dp)
             )
             Text(
+                lineHeight = 14.sp,
                 text = ("Причина невывоза: ${reason?: "не указана"}"),
                 color = Color.White,
                 fontSize = 12.sp,

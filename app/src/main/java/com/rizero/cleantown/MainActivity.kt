@@ -40,18 +40,13 @@ class MainActivity : ComponentActivity() {
         startKoin<KoinInstance> {
             androidContext(this@MainActivity)
         }
-        val requestPermissionComponentFactory : RequestPermissionComponent.Factory by inject()
-        val signInComponentFactory : SignInComponent.Factory by inject()
-        val shiftFlowComponentFactory : ShiftFlowComponent.Factory by inject()
-        val rootComponent = RootComponent(
+        val rootComponentFactory : RootComponent.Factory by inject()
+        val rootComponent = rootComponentFactory(
             componentContext = defaultComponentContext(),
-            requestPermissionComponentFactory = requestPermissionComponentFactory,
-            shiftFlowComponentFactory = shiftFlowComponentFactory,
-            signInComponentFactory = signInComponentFactory,
             onPermissionRequest = { permissions, callback ->
                 permissionRequestCallback = callback
                 launchPermissions(permissions)
-            },
+            }
         )
         enableEdgeToEdge()
         setContent {
