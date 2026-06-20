@@ -2,8 +2,10 @@ package com.rizero.core_data.model
 
 import com.rizero.core_database.entity.pojo.WaybillGarbageSiteWithReport
 import com.rizero.core_network.dto.GarbageSiteDTO
+import kotlinx.serialization.Serializable
 import java.util.UUID
 
+@Serializable
 data class GarbageSite(
     val id : String,
     val address : String,

@@ -3,6 +3,7 @@ package com.rizero.feature_trashsite.ui.screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,6 +25,8 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,13 +39,23 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import coil3.compose.AsyncImage
+import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import com.rizero.core_data.model.GarbageSite
+import com.rizero.core_data.model.Report
 import com.rizero.feature_trashsite.R
 import com.rizero.feature_trashsite.component.GarbageSiteComponent
 import com.rizero.feature_trashsite.component.MockGarbageSiteComponent
+import com.rizero.feature_trashsite.store.GarbageSiteStore
+import com.rizero.feature_uncollect_reason.screen.UncollectedReasonDialog
 import com.rizero.shared_ui.AppColors
+import java.util.UUID
 
 @Composable
 fun GarbageSiteScreen(garbageSiteComponent: GarbageSiteComponent){
+    val state by garbageSiteComponent.state.collectAsState()
+    val uncollectedReasonDialog by garbageSiteComponent.uncollectedReasonDialog.subscribeAsState()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -72,13 +85,13 @@ fun GarbageSiteScreen(garbageSiteComponent: GarbageSiteComponent){
                 modifier = Modifier.padding(start = 20.dp)
             ) {
                 Text(
-                    text = "Площадка №1",
+                    text = "Площадка по адресу",
                     fontSize = 18.sp,
                     color = Color.White,
 
                 )
                 Text(
-                    text = "ул. Ленина 10",
+                    text = state.garbageSite.address,
                     fontSize = 14.sp,
                     color = Color.White
                 )
@@ -98,14 +111,21 @@ fun GarbageSiteScreen(garbageSiteComponent: GarbageSiteComponent){
                 modifier = Modifier.weight(1f)
             )
             Switch(
-                checked = true,
-                onCheckedChange = {}
+                checked = state.report.collected,
+                onCheckedChange = {
+                    if (state.report.uncollectedReason == null) {
+                        garbageSiteComponent.changeCollectedStatus()
+                    }
+                }
             )
         }
         HorizontalDivider()
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
+                .clickable(onClick = {
+                    garbageSiteComponent.openSelectUncollectedReasonDialog()
+                })
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp, vertical = 8.dp)
         ){
@@ -119,7 +139,7 @@ fun GarbageSiteScreen(garbageSiteComponent: GarbageSiteComponent){
                     fontSize = 14.sp,
                 )
                 Text(
-                    text = "Не указана",
+                    text = state.report.uncollectedReason?.name ?: "Не указана",
                     color = Color.LightGray,
                     fontSize = 14.sp,
                 )
@@ -142,22 +162,38 @@ fun GarbageSiteScreen(garbageSiteComponent: GarbageSiteComponent){
                 color = Color.White,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
-            Image(
-                painter = painterResource(R.drawable.no_photo),
-                contentDescription = "Фото не сделано",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .border(
-                        width = 2.dp,
-                        brush = SolidColor(AppColors.lightBackgroundColor),
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                    .clip(RoundedCornerShape(16.dp))
-                    .size(width = 200.dp, height = 140.dp)
-            )
+            if (state.report.photoBefore != null){
+                AsyncImage(
+                    model = state.report.photoBefore,
+                    contentDescription = "Фото площадки до уборки",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .border(
+                            width = 2.dp,
+                            brush = SolidColor(AppColors.lightBackgroundColor),
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .clip(RoundedCornerShape(16.dp))
+                        .size(width = 200.dp, height = 140.dp)
+                )
+            }else{
+                Image(
+                    painter = painterResource(R.drawable.no_photo),
+                    contentDescription = "Фото не сделано",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .border(
+                            width = 2.dp,
+                            brush = SolidColor(AppColors.lightBackgroundColor),
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .clip(RoundedCornerShape(16.dp))
+                        .size(width = 200.dp, height = 140.dp)
+                )
+            }
             Button(
                 onClick = {
-                    garbageSiteComponent.takePhoto()
+                    garbageSiteComponent.takeBeforePhoto()
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = AppColors.buttonBackgroundColor
@@ -165,7 +201,7 @@ fun GarbageSiteScreen(garbageSiteComponent: GarbageSiteComponent){
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
                     .padding(vertical = 20.dp)
-                    .size(200.dp,40.dp)
+                    .size(200.dp, 40.dp)
             ) {
                 Text(
                     "Сделать фото",
@@ -179,22 +215,38 @@ fun GarbageSiteScreen(garbageSiteComponent: GarbageSiteComponent){
                 color = Color.White,
                 modifier = Modifier.padding(vertical = 12.dp)
             )
-            Image(
-                painter = painterResource(R.drawable.no_photo),
-                contentDescription = "Фото не сделано",
-                contentScale = ContentScale.FillBounds,
-                modifier = Modifier
-                    .border(
-                        width = 2.dp,
-                        brush = SolidColor(AppColors.lightBackgroundColor),
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                    .clip(RoundedCornerShape(16.dp))
-                    .size(width = 200.dp, height = 140.dp)
-            )
+            if (state.report.photoAfter != null){
+                AsyncImage(
+                    model = state.report.photoAfter,
+                    contentDescription = "Фото площадки после уборки",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .border(
+                            width = 2.dp,
+                            brush = SolidColor(AppColors.lightBackgroundColor),
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .clip(RoundedCornerShape(16.dp))
+                        .size(width = 200.dp, height = 140.dp)
+                )
+            }else{
+                Image(
+                    painter = painterResource(R.drawable.no_photo),
+                    contentDescription = "Фото не сделано",
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier
+                        .border(
+                            width = 2.dp,
+                            brush = SolidColor(AppColors.lightBackgroundColor),
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .clip(RoundedCornerShape(16.dp))
+                        .size(width = 200.dp, height = 140.dp)
+                )
+            }
             Button(
                 onClick = {
-                    garbageSiteComponent.takePhoto()
+                    garbageSiteComponent.takeAfterPhoto()
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = AppColors.buttonBackgroundColor
@@ -202,7 +254,7 @@ fun GarbageSiteScreen(garbageSiteComponent: GarbageSiteComponent){
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
                     .padding(vertical = 20.dp)
-                    .size(200.dp,40.dp)
+                    .size(200.dp, 40.dp)
             ) {
                 Text(
                     "Сделать фото",
@@ -213,12 +265,18 @@ fun GarbageSiteScreen(garbageSiteComponent: GarbageSiteComponent){
         }
 
         Button(
+            enabled = state.report.uncollectedReason != null || (
+                        state.report.photoBefore != null &&
+                        state.report.photoAfter !=null &&
+                        state.report.collected
+                    )
+            ,
             onClick = {
-                //todo временно
                 garbageSiteComponent.navigateBack()
             },
             colors = ButtonDefaults.buttonColors(
-                containerColor = AppColors.lightBackgroundColor
+                disabledContainerColor = AppColors.lightBackgroundColor,
+                containerColor = AppColors.buttonBackgroundColor
             ),
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier
@@ -229,10 +287,34 @@ fun GarbageSiteScreen(garbageSiteComponent: GarbageSiteComponent){
             Text("Записать данные площадки")
         }
     }
+    uncollectedReasonDialog.child?.let { uncollectedReasonDialog->
+        Dialog(
+            onDismissRequest = {}
+        ){
+            UncollectedReasonDialog(uncollectedReasonDialog.instance)
+        }
+    }
 }
 
 @Composable
 @Preview
 fun GarbageSiteScreenPreview(){
-     GarbageSiteScreen(MockGarbageSiteComponent())
+     GarbageSiteScreen(MockGarbageSiteComponent(GarbageSiteStore.State(
+         garbageSite = GarbageSite(
+             id = UUID.randomUUID().toString(),
+             address = "Ломоносова 10",
+             longitude = 51.432532,
+             latitude = 32.43252,
+             distanceTo = 1000,
+             report = null
+         ),
+         report = Report(
+             id = UUID.randomUUID(),
+             garbageSiteID = UUID.randomUUID(),
+             collected = false,
+             photoBefore = null,
+             photoAfter = null,
+             uncollectedReason = null
+         )
+     )))
 }

@@ -39,6 +39,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":feature-uncollect-reason"))
+    implementation(project(":core-data"))
     implementation(project(":shared-ui"))
 
     implementation(libs.androidx.core.ktx)
@@ -58,6 +60,8 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+
+    implementation(libs.coil.compose)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

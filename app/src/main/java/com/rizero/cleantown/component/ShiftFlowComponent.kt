@@ -14,6 +14,16 @@ import com.rizero.feature_trashsite.component.GarbageSiteComponent
 import kotlinx.serialization.Serializable
 import org.koin.core.annotation.Single
 import androidx.core.net.toUri
+import com.arkivanov.decompose.router.stack.active
+import com.arkivanov.decompose.router.stack.popTo
+import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
+import com.rizero.core_data.model.GarbageSite
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
 
 class ShiftFlowComponent(
     componentContext: ComponentContext,
@@ -23,8 +33,10 @@ class ShiftFlowComponent(
     val submitPhotoComponentFactory: SubmitPhotoComponent.Factory,
     val finishShiftCallback : () -> Unit
 ) : ComponentContext by componentContext{
-    private val navigation = StackNavigation<Config>()
 
+    private val photoUriChannel = Channel<Uri?>(Channel.BUFFERED)
+    private val navigation = StackNavigation<Config>()
+    val componentScope = coroutineScope()
     val stack = childStack(
         source = navigation,
         serializer = Config.serializer(),
@@ -41,22 +53,36 @@ class ShiftFlowComponent(
             Config.GarbageSiteList -> Child.GarbageSiteList(
                 squareListComponent = squareListComponentFactory(
                     childComponentContext,
-                    openGarbageSiteCallback = {
-                        navigation.pushNew(Config.GarbageSitePage)
+                    openGarbageSiteCallback = { garbageSite->
+                        navigation.pushNew(Config.GarbageSitePage(garbageSite))
                     },
                     finishShiftCallback = {
                         finishShiftCallback()
                     }
                 )
             )
-            Config.GarbageSitePage -> Child.GarbageSitePage(
+            is Config.GarbageSitePage -> Child.GarbageSitePage(
                 garbageSiteComponentFactory(
                     componentContext = childComponentContext,
-                    takePhotoCallback = {
-                        navigation.pushNew(Config.TakePhotoPage)
-                    },
                     navigateBackCallback = {
                         navigation.pop()
+                    },
+                    garbageSite = config.garbageSite,
+                    takeBeforePhotoCallback = { onPhotoBeforeConfirmedCallback->
+                        navigation.pushNew(Config.TakePhotoPage)
+                        componentScope.launch {
+                            photoUriChannel.receive()?.let {
+                                onPhotoBeforeConfirmedCallback(it)
+                            }
+                        }
+                    },
+                    takeAfterPhotoCallback = { onPhotoAfterConfirmedCallback->
+                        navigation.pushNew(Config.TakePhotoPage)
+                        componentScope.launch {
+                            photoUriChannel.receive()?.let {
+                                onPhotoAfterConfirmedCallback(it)
+                            }
+                        }
                     }
                 )
             )
@@ -64,7 +90,6 @@ class ShiftFlowComponent(
                 takePhotoComponentFactory.invoke(
                     componentContext = childComponentContext,
                     onPhotoTakenCallback = { uri->
-
                         navigation.pushNew(Config.ConfirmPhotoPage(uri.toString()))
                     },
                     onNavigateBackCallback = {
@@ -75,8 +100,11 @@ class ShiftFlowComponent(
             is Config.ConfirmPhotoPage -> Child.ConfirmPhotoPage(
                 submitPhotoComponentFactory.invoke(
                     componentContext = childComponentContext,
-                    onAcceptPhotoCallback = {
-                        navigation.popToFirst()
+                    onAcceptPhotoCallback = { uri->
+                        componentScope.launch {
+                            photoUriChannel.send( uri)
+                        }
+                        navigation.popTo(1)
                     },
                     onDeclinePhotoCallback = {
                         navigation.pop()
@@ -99,7 +127,7 @@ class ShiftFlowComponent(
         @Serializable
         data object GarbageSiteList : Config
         @Serializable
-        data object GarbageSitePage : Config
+        data class GarbageSitePage(val garbageSite: GarbageSite) : Config
         @Serializable
         data object TakePhotoPage : Config
         @Serializable

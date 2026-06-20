@@ -12,6 +12,7 @@ class DefaultUncollectedReasonComponent(
     componentContext: ComponentContext,
     val uncollectedReasonRepository: UncollectedReasonRepository,
     val onReasonSelectedCallback : (UncollectedReason) -> Unit,
+    val onRemoveReasonCallback : () -> Unit,
 ) : UncollectedReasonComponent, ComponentContext by componentContext{
     val store = instanceKeeper.getStore {
         UncollectedReasonStoreFactory(
@@ -24,17 +25,23 @@ class DefaultUncollectedReasonComponent(
         onReasonSelectedCallback(selectedReason)
     }
 
+    override fun removeUncollectedReason() {
+        onRemoveReasonCallback()
+    }
+
     @Single
     class Factory(
         val uncollectedReasonRepository: UncollectedReasonRepository
     ) : UncollectedReasonComponent.Factory {
         override fun invoke(
             componentContext: ComponentContext,
-            onReasonSelected: (UncollectedReason) -> Unit
+            onReasonSelected: (UncollectedReason) -> Unit,
+            onRemoveReasonCallback : () -> Unit,
         ) = DefaultUncollectedReasonComponent(
                 componentContext = componentContext,
                 uncollectedReasonRepository = uncollectedReasonRepository,
-                onReasonSelectedCallback = onReasonSelected
+                onRemoveReasonCallback = onRemoveReasonCallback,
+                onReasonSelectedCallback = onReasonSelected,
             )
     }
 }

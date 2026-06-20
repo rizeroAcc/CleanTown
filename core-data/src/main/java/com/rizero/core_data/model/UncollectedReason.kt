@@ -1,7 +1,9 @@
 package com.rizero.core_data.model
 
 import com.rizero.core_database.entity.UncollectedReasonEntity
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class UncollectedReason(
     val id : Int,
     val name : String,

@@ -3,15 +3,24 @@ package com.rizero.core_data.model
 import android.net.Uri
 import com.rizero.core_database.entity.ReportEntity
 import androidx.core.net.toUri
+import com.rizero.core_data.serializer.UUIDSerializer
+import com.rizero.core_data.serializer.UriSerializer
 import com.rizero.core_database.entity.pojo.ReportWithUncollectedReason
 import com.rizero.core_network.dto.ReportDTO
+import kotlinx.serialization.Serializable
 import java.util.UUID
 
+
+@Serializable
 data class Report(
-    val id : Int,
+    @Serializable(with = UUIDSerializer::class)
+    val id : UUID,
+    @Serializable(with = UUIDSerializer::class)
     val garbageSiteID : UUID,
     val collected : Boolean,
+    @Serializable(with = UriSerializer::class)
     val photoBefore : Uri?,
+    @Serializable(with = UriSerializer::class)
     val photoAfter : Uri?,
     val uncollectedReason : UncollectedReason?
 ){

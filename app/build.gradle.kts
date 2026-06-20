@@ -80,6 +80,8 @@ dependencies {
     implementation(libs.decompose.core)
     implementation(libs.decompose.extensions.compose)
 
+    implementation(libs.essenty.lifecycle.coroutines)
+
     implementation(libs.bundles.room.base)
     ksp(libs.room.compiler)
 

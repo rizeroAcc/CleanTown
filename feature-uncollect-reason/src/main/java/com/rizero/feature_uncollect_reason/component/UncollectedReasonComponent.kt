@@ -10,10 +10,12 @@ interface UncollectedReasonComponent {
     val state : StateFlow<UncollectedReasonStore.State>
 
     fun onReasonSelected(selectedReason : UncollectedReason) : Unit
+    fun removeUncollectedReason() : Unit
     fun interface Factory{
         operator fun invoke(
             componentContext: ComponentContext,
-            onReasonSelected : (UncollectedReason)-> Unit
+            onReasonSelected : (UncollectedReason)-> Unit,
+            onRemoveReasonCallback : () -> Unit,
         ) : UncollectedReasonComponent
     }
 }
@@ -23,5 +25,6 @@ class MockUncollectedReasonComponent(val mockState : UncollectedReasonStore.Stat
         get() = MutableStateFlow(mockState ?: UncollectedReasonStore.State())
 
     override fun onReasonSelected(selectedReason: UncollectedReason) = Unit
+    override fun removeUncollectedReason() = Unit
 
 }

@@ -7,11 +7,11 @@ import org.koin.core.annotation.Single
 class DefaultSubmitPhotoComponent(
     componentContext: ComponentContext,
     override val photoURI : Uri,
-    val onAcceptPhotoCallback: () -> Unit,
+    val onAcceptPhotoCallback: (Uri) -> Unit,
     val onDeclinePhotoCallback: () -> Unit,
 ) : SubmitPhotoComponent, ComponentContext by componentContext{
     override fun onAcceptPhoto() {
-        onAcceptPhotoCallback()
+        onAcceptPhotoCallback(photoURI)
     }
 
     override fun onDeclinePhoto() {
@@ -23,7 +23,7 @@ class DefaultSubmitPhotoComponent(
         override fun invoke(
             componentContext: ComponentContext,
             photoUri : Uri,
-            onAcceptPhotoCallback: () -> Unit,
+            onAcceptPhotoCallback: (Uri) -> Unit,
             onDeclinePhotoCallback: () -> Unit
         ): SubmitPhotoComponent =
             DefaultSubmitPhotoComponent(

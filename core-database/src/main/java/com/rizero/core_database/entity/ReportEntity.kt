@@ -19,8 +19,8 @@ import java.util.UUID
     ]
 )
 data class ReportEntity(
-    @PrimaryKey(autoGenerate = true)
-    val reportID : Int,
+    @PrimaryKey()
+    val reportID : UUID,
     val waybillGarbageSiteID : UUID,
     val photoBefore : String?,
     val photoAfter : String?,

@@ -12,7 +12,7 @@ interface SubmitPhotoComponent {
         operator fun invoke(
             componentContext: ComponentContext,
             photoUri: Uri,
-            onAcceptPhotoCallback: () -> Unit,
+            onAcceptPhotoCallback: (Uri) -> Unit,
             onDeclinePhotoCallback: () -> Unit,
         ) : SubmitPhotoComponent
     }

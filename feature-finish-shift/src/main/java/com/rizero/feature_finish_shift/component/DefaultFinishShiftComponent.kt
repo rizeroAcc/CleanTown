@@ -39,6 +39,10 @@ class DefaultFinishShiftComponent(
                 onReasonSelected = { reason ->
                     store.accept(FinishShiftStore.Intent.ChangeUncollectedReason(reason))
                     slotNav.dismiss()
+                },
+                onRemoveReasonCallback = {
+                    store.accept(FinishShiftStore.Intent.ChangeUncollectedReason(null))
+                    slotNav.dismiss()
                 }
             )
         }

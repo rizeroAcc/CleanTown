@@ -18,7 +18,7 @@ import com.rizero.core_database.entity.WaybillGarbageSite
         ReportEntity::class,
         UncollectedReasonEntity::class
                ],
-    version = 2
+    version = 3
 )
 abstract class WaybillsDatabase : RoomDatabase() {
     abstract fun uncollectedReasonDao() : UncollectedReasonDao
