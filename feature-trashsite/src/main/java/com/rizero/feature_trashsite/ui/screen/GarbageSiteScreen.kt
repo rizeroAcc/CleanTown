@@ -268,11 +268,12 @@ fun GarbageSiteScreen(garbageSiteComponent: GarbageSiteComponent){
             enabled = state.report.uncollectedReason != null || (
                         state.report.photoBefore != null &&
                         state.report.photoAfter !=null &&
-                        state.report.collected
+                        state.report.collected &&
+                        !state.saving
                     )
             ,
             onClick = {
-                garbageSiteComponent.navigateBack()
+                garbageSiteComponent.saveReport()
             },
             colors = ButtonDefaults.buttonColors(
                 disabledContainerColor = AppColors.lightBackgroundColor,

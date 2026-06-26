@@ -55,6 +55,7 @@ dependencies {
     implementation(libs.decompose.extensions.compose)
 
     implementation(libs.maplibre.compose)
+    implementation(libs.maplibre.composeMaterial3)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

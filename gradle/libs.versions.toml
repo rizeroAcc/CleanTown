@@ -95,6 +95,7 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 maplibre-compose = { module = "org.maplibre.compose:maplibre-compose", version = "0.13.0" }
+maplibre-composeMaterial3 = { module = "org.maplibre.compose:maplibre-compose-material3", version = "0.13.0" }
 
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil"}
 coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil"}

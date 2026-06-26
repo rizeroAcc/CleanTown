@@ -9,9 +9,10 @@ import java.util.UUID
     tableName = "waybills",
     indices = [Index(value = ["driver", "date"])]
 )
-data class Waybill(
+data class WaybillEntity(
     @PrimaryKey
     val id : UUID,
     val driver : String,
     val date : String,
+    val updateTime : String,
 )

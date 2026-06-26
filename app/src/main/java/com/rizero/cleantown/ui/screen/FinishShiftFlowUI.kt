@@ -21,7 +21,7 @@ fun FinishShiftFlowUI(finishShiftFlowComponent: FinishShiftFlowComponent){
     ) { child->
         when (val component = child.instance){
             is FinishShiftFlowComponent.Child.FinishShiftC -> FinishShiftScreen(component.instance)
-            is FinishShiftFlowComponent.Child.SyncDataC -> DataSyncScreen()
+            is FinishShiftFlowComponent.Child.SyncDataC -> DataSyncScreen(component.instance)
         }
     }
 }

@@ -8,17 +8,17 @@ import com.rizero.core_database.dao.WaybillDao
 import com.rizero.core_database.dao.WaybillGarbageSiteDao
 import com.rizero.core_database.entity.ReportEntity
 import com.rizero.core_database.entity.UncollectedReasonEntity
-import com.rizero.core_database.entity.Waybill
-import com.rizero.core_database.entity.WaybillGarbageSite
+import com.rizero.core_database.entity.WaybillEntity
+import com.rizero.core_database.entity.WaybillGarbageSiteEntity
 
 @Database(
     entities = [
-        Waybill::class,
-        WaybillGarbageSite::class,
+        WaybillEntity::class,
+        WaybillGarbageSiteEntity::class,
         ReportEntity::class,
         UncollectedReasonEntity::class
                ],
-    version = 3
+    version = 6
 )
 abstract class WaybillsDatabase : RoomDatabase() {
     abstract fun uncollectedReasonDao() : UncollectedReasonDao

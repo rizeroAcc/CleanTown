@@ -3,6 +3,8 @@ package com.rizero.cleantown.component
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
+import com.arkivanov.decompose.router.stack.push
+import com.arkivanov.decompose.router.stack.pushNew
 import com.rizero.cleantown.component.FinishShiftFlowComponent.Child.*
 import com.rizero.feature_finish_shift.component.DataSyncComponent
 import com.rizero.feature_finish_shift.component.DefaultFinishShiftComponent
@@ -12,7 +14,8 @@ import org.koin.core.annotation.Single
 
 class FinishShiftFlowComponent(
     componentContext: ComponentContext,
-    val finishShiftComponentFactory: FinishShiftComponent.Factory
+    val finishShiftComponentFactory: FinishShiftComponent.Factory,
+    val dataSyncComponentFactory: DataSyncComponent.Factory,
 ) : ComponentContext by componentContext {
 
     private val navigation = StackNavigation<Config>()
@@ -30,10 +33,17 @@ class FinishShiftFlowComponent(
         return when(config){
             Config.FinishShift -> FinishShiftC(
                 instance = finishShiftComponentFactory.invoke(
+                    componentContext = context,
+                    onUncollectedReasonWritten = {
+                        navigation.pushNew(Config.SyncData)
+                    }
+                )
+            )
+            Config.SyncData -> SyncDataC(
+                instance = dataSyncComponentFactory.invoke(
                     componentContext = context
                 )
             )
-            Config.SyncData -> TODO()
         }
     }
 
@@ -53,13 +63,15 @@ class FinishShiftFlowComponent(
 
     @Single
     class Factory(
-        val finishShiftComponentFactory: FinishShiftComponent.Factory
+        val finishShiftComponentFactory: FinishShiftComponent.Factory,
+        val dataSyncComponentFactory: DataSyncComponent.Factory,
     ){
         operator fun invoke(
             componentContext: ComponentContext
         ) : FinishShiftFlowComponent = FinishShiftFlowComponent(
             componentContext = componentContext,
             finishShiftComponentFactory = finishShiftComponentFactory,
+            dataSyncComponentFactory = dataSyncComponentFactory,
         )
     }
 }

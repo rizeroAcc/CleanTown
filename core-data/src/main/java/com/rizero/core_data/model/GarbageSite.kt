@@ -1,5 +1,6 @@
 package com.rizero.core_data.model
 
+import com.rizero.core_database.entity.WaybillGarbageSiteEntity
 import com.rizero.core_database.entity.pojo.WaybillGarbageSiteWithReport
 import com.rizero.core_network.dto.GarbageSiteDTO
 import kotlinx.serialization.Serializable
@@ -11,8 +12,8 @@ data class GarbageSite(
     val address : String,
     val longitude : Double,
     val latitude : Double,
-    val distanceTo : Int?,
-    val report: Report?
+    val distanceTo : Int? = null,
+    val report: Report? = null,
 ){
     companion object {
         fun fromDTO(garbageSiteDTO: GarbageSiteDTO) : GarbageSite =
@@ -36,4 +37,12 @@ data class GarbageSite(
                 }
             )
     }
+    fun toEntity(waybillID : UUID) : WaybillGarbageSiteEntity = WaybillGarbageSiteEntity(
+        id = UUID.fromString(this.id),
+        waybillID = waybillID,
+        address = this.address,
+        latitude = this.latitude,
+        longitude = this.longitude
+    )
+
 }

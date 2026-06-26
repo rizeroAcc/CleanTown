@@ -23,7 +23,6 @@ import org.koin.core.annotation.Single
 import java.security.Permissions
 import kotlin.coroutines.resume
 
-@Single
 class DefaultLocationRepository(
     private val context: Context
 ) : LocationRepository {
@@ -104,10 +103,20 @@ class DefaultLocationRepository(
 
     @SuppressLint("MissingPermission")
     private fun getLastKnownLocation(): Location? {
-        val providers = listOf(
-            LocationManager.GPS_PROVIDER,
-            LocationManager.NETWORK_PROVIDER
-        )
+        val providers = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            listOf(
+                LocationManager.GPS_PROVIDER,
+                LocationManager.NETWORK_PROVIDER,
+                LocationManager.PASSIVE_PROVIDER,
+                LocationManager.FUSED_PROVIDER
+            )
+        } else {
+            listOf(
+                LocationManager.GPS_PROVIDER,
+                LocationManager.NETWORK_PROVIDER,
+                LocationManager.PASSIVE_PROVIDER,
+            )
+        }
 
         return providers
             .filter { locationManager.isProviderEnabled(it) }
@@ -122,7 +131,7 @@ class DefaultLocationRepository(
             context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
             context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
         ){
-            close()
+            close(SecurityException("Location permission not granted"))
             return@callbackFlow
         }
 
@@ -130,17 +139,27 @@ class DefaultLocationRepository(
             location -> trySend(location)
         }
 
-        val providers = listOf(
-            LocationManager.GPS_PROVIDER,
-            LocationManager.NETWORK_PROVIDER
-        )
+        val providers = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            listOf(
+                LocationManager.GPS_PROVIDER,
+                LocationManager.NETWORK_PROVIDER,
+                LocationManager.PASSIVE_PROVIDER,
+                LocationManager.FUSED_PROVIDER
+            )
+        } else {
+            listOf(
+                LocationManager.GPS_PROVIDER,
+                LocationManager.NETWORK_PROVIDER,
+                LocationManager.PASSIVE_PROVIDER,
+            )
+        }
 
         try {
             providers.forEach { provider ->
                 locationManager.requestLocationUpdates(
                     provider,
                     intervalMillis,
-                    30f,
+                    10f,
                     listener,
                     Looper.getMainLooper()
                 )

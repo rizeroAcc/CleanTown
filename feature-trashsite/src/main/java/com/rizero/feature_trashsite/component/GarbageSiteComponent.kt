@@ -24,13 +24,14 @@ interface GarbageSiteComponent {
     fun onAfterPhotoAccepted(photoUri : Uri)
     fun takeBeforePhoto()
     fun takeAfterPhoto()
+    fun saveReport()
     fun navigateBack()
     fun interface Factory {
         operator fun invoke(
             componentContext: ComponentContext,
-            navigateBackCallback: () -> Unit,
-            takeBeforePhotoCallback : (onPhotoBeforeConfirmed: (Uri) -> Unit) -> Unit,
-            takeAfterPhotoCallback : (onPhotoAfterConfirmed: (Uri) -> Unit) -> Unit,
+            navigateBackCallback: (reportWritten : Boolean) -> Unit,
+            takeBeforePhotoCallback : (address: String, onPhotoBeforeConfirmed: (Uri) -> Unit) -> Unit,
+            takeAfterPhotoCallback : (address: String, onPhotoAfterConfirmed: (Uri) -> Unit) -> Unit,
             garbageSite: GarbageSite,
         ) : GarbageSiteComponent
     }
@@ -49,5 +50,6 @@ class MockGarbageSiteComponent(val mockState: GarbageSiteStore.State) : GarbageS
     override fun onAfterPhotoAccepted(photoUri: Uri) = Unit
     override fun takeBeforePhoto() = Unit
     override fun takeAfterPhoto() = Unit
+    override fun saveReport() = Unit
     override fun navigateBack() = Unit
 }

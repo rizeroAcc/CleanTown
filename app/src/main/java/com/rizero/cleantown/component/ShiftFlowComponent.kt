@@ -18,11 +18,13 @@ import com.arkivanov.decompose.router.stack.active
 import com.arkivanov.decompose.router.stack.popTo
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
 import com.rizero.core_data.model.GarbageSite
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class ShiftFlowComponent(
@@ -34,7 +36,11 @@ class ShiftFlowComponent(
     val finishShiftCallback : () -> Unit
 ) : ComponentContext by componentContext{
 
-    private val photoUriChannel = Channel<Uri?>(Channel.BUFFERED)
+    private val photoUriChannel = Channel<Uri?>(Channel.CONFLATED)
+    private val garbageSiteResultChannel = Channel<Boolean?>(Channel.CONFLATED)
+    private var subscriptionPhotoBefore : Job? = null
+    private var subscriptionPhotoAfter : Job? = null
+    private var subscriptionGarbageSiteResult : Job? = null
     private val navigation = StackNavigation<Config>()
     val componentScope = coroutineScope()
     val stack = childStack(
@@ -53,8 +59,11 @@ class ShiftFlowComponent(
             Config.GarbageSiteList -> Child.GarbageSiteList(
                 squareListComponent = squareListComponentFactory(
                     childComponentContext,
-                    openGarbageSiteCallback = { garbageSite->
+                    openGarbageSiteCallback = { garbageSite, resultWrittenCallback->
                         navigation.pushNew(Config.GarbageSitePage(garbageSite))
+                        subscriptionGarbageSiteResult = componentScope.launch {
+                            resultWrittenCallback(garbageSiteResultChannel.receive() ?: false)
+                        }
                     },
                     finishShiftCallback = {
                         finishShiftCallback()
@@ -64,37 +73,46 @@ class ShiftFlowComponent(
             is Config.GarbageSitePage -> Child.GarbageSitePage(
                 garbageSiteComponentFactory(
                     componentContext = childComponentContext,
-                    navigateBackCallback = {
+                    navigateBackCallback = { reportWritten->
+                        componentScope.launch {
+                            garbageSiteResultChannel.send( reportWritten)
+                        }
                         navigation.pop()
+
                     },
                     garbageSite = config.garbageSite,
-                    takeBeforePhotoCallback = { onPhotoBeforeConfirmedCallback->
-                        navigation.pushNew(Config.TakePhotoPage)
-                        componentScope.launch {
+                    takeBeforePhotoCallback = { address,onPhotoBeforeConfirmedCallback->
+                        navigation.pushNew(Config.TakePhotoPage(address))
+                        subscriptionPhotoBefore = componentScope.launch {
                             photoUriChannel.receive()?.let {
                                 onPhotoBeforeConfirmedCallback(it)
                             }
                         }
                     },
-                    takeAfterPhotoCallback = { onPhotoAfterConfirmedCallback->
-                        navigation.pushNew(Config.TakePhotoPage)
-                        componentScope.launch {
+                    takeAfterPhotoCallback = { address,onPhotoAfterConfirmedCallback->
+                        navigation.pushNew(Config.TakePhotoPage(address))
+                        subscriptionPhotoAfter = componentScope.launch {
                             photoUriChannel.receive()?.let {
-                                onPhotoAfterConfirmedCallback(it)
+                                if(isActive) {
+                                    onPhotoAfterConfirmedCallback(it)
+                                }
                             }
                         }
                     }
                 )
             )
-            Config.TakePhotoPage -> Child.TakePhotoPage(
+            is Config.TakePhotoPage -> Child.TakePhotoPage(
                 takePhotoComponentFactory.invoke(
                     componentContext = childComponentContext,
                     onPhotoTakenCallback = { uri->
                         navigation.pushNew(Config.ConfirmPhotoPage(uri.toString()))
                     },
                     onNavigateBackCallback = {
+                        subscriptionPhotoAfter?.cancel()
+                        subscriptionPhotoBefore?.cancel()
                         navigation.pop()
                     },
+                    address = config.address
                 )
             )
             is Config.ConfirmPhotoPage -> Child.ConfirmPhotoPage(
@@ -129,7 +147,9 @@ class ShiftFlowComponent(
         @Serializable
         data class GarbageSitePage(val garbageSite: GarbageSite) : Config
         @Serializable
-        data object TakePhotoPage : Config
+        data class TakePhotoPage(
+            val address : String,
+        ) : Config
         @Serializable
         data class ConfirmPhotoPage (val photoUri : String) : Config
     }

@@ -9,7 +9,7 @@ import java.util.UUID
     tableName = "waybill_garbage_site",
     foreignKeys = [
         ForeignKey(
-            entity = Waybill::class,
+            entity = WaybillEntity::class,
             parentColumns = ["id"],
             childColumns = ["waybillID"],
             onDelete = ForeignKey.CASCADE,
@@ -17,7 +17,7 @@ import java.util.UUID
         )
     ]
 )
-data class WaybillGarbageSite(
+data class WaybillGarbageSiteEntity(
     @PrimaryKey
     val id : UUID,
     val waybillID : UUID,

@@ -44,6 +44,11 @@ dependencies{
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
 
+    implementation(libs.bundles.room.base)
+
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+
+
     api(libs.arrow.core)
     implementation(libs.bundles.koin.annotations)
 

@@ -9,7 +9,7 @@ import java.util.UUID
     tableName = "reports",
     foreignKeys = [
         ForeignKey(
-            entity = WaybillGarbageSite::class,
+            entity = WaybillGarbageSiteEntity::class,
             parentColumns = ["id"],
             childColumns = ["waybillGarbageSiteID"],
             onUpdate = ForeignKey.CASCADE,
@@ -26,4 +26,5 @@ data class ReportEntity(
     val photoAfter : String?,
     val collected : Boolean,
     val uncollectedReasonID : Int?,
+    val send : Boolean,
 )

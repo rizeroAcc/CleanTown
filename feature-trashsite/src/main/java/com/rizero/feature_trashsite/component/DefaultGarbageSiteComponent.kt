@@ -8,22 +8,30 @@ import com.arkivanov.decompose.router.slot.activate
 import com.arkivanov.decompose.router.slot.childSlot
 import com.arkivanov.decompose.router.slot.dismiss
 import com.arkivanov.decompose.value.Value
+import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
+import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
 import com.rizero.core_data.model.GarbageSite
 import com.rizero.core_data.model.UncollectedReason
+import com.rizero.core_data.repository.WaybillRepository
 import com.rizero.feature_trashsite.store.GarbageSiteStore
 import com.rizero.feature_trashsite.store.GarbageSiteStoreFactory
 import com.rizero.feature_uncollect_reason.component.UncollectedReasonComponent
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.koin.core.annotation.Single
 
+//TODO Список после сохранения отчета не обновляется, посмотреть почему
 class DefaultGarbageSiteComponent(
     componentContext: ComponentContext,
-    val navigateBackCallback : () -> Unit,
-    val takeBeforePhotoCallback : (onPhotoBeforeConfirmed: (Uri) -> Unit) -> Unit,
-    val takeAfterPhotoCallback : (onPhotoAfterConfirmed: (Uri) -> Unit) -> Unit,
+    val waybillRepository: WaybillRepository,
+    val navigateBackCallback : (reportWritten : Boolean) -> Unit,
+    val takeBeforePhotoCallback : (address : String, onPhotoBeforeConfirmed: (Uri) -> Unit) -> Unit,
+    val takeAfterPhotoCallback : (address : String, onPhotoAfterConfirmed: (Uri) -> Unit) -> Unit,
     val uncollectedReasonComponentFactory: UncollectedReasonComponent.Factory,
     val garbageSite : GarbageSite,
 ) : GarbageSiteComponent, ComponentContext by componentContext {
@@ -50,8 +58,20 @@ class DefaultGarbageSiteComponent(
             )
         }
     val store = instanceKeeper.getStore {
-        GarbageSiteStoreFactory().create(garbageSite)
+        GarbageSiteStoreFactory(waybillRepository).create(garbageSite)
     }
+    val componentScope = coroutineScope()
+    init {
+        componentScope.launch(Dispatchers.Main){
+            store.labels.collect { label ->
+                when(label){
+                    GarbageSiteStore.Label.ReportSaved -> navigateBackCallback(true)
+                }
+            }
+        }
+
+    }
+
     override val state: StateFlow<GarbageSiteStore.State> = store.stateFlow(lifecycle)
     override fun changeCollectedStatus() {
         store.accept(GarbageSiteStore.Intent.ChangeGarbageCollectedStatus)
@@ -74,20 +94,24 @@ class DefaultGarbageSiteComponent(
     }
 
     override fun takeBeforePhoto() {
-        takeBeforePhotoCallback{
+        takeBeforePhotoCallback(store.state.garbageSite.address){
             onBeforePhotoAccepted(it)
         }
     }
 
     override fun takeAfterPhoto() {
-        takeAfterPhotoCallback{
+        takeAfterPhotoCallback(store.state.garbageSite.address){
             onAfterPhotoAccepted(it)
         }
     }
 
+    override fun saveReport() {
+        store.accept(GarbageSiteStore.Intent.SaveReport)
+    }
+
 
     override fun navigateBack() {
-        navigateBackCallback()
+        navigateBackCallback(false)
     }
 
     @Serializable
@@ -96,16 +120,18 @@ class DefaultGarbageSiteComponent(
     @Single
     class Factory(
         val uncollectedReasonComponentFactory: UncollectedReasonComponent.Factory,
+        val waybillRepository: WaybillRepository,
     ) : GarbageSiteComponent.Factory{
         override fun invoke(
             componentContext: ComponentContext,
-            navigateBackCallback: () -> Unit,
-            takeBeforePhotoCallback : (onPhotoBeforeConfirmed: (Uri) -> Unit) -> Unit,
-            takeAfterPhotoCallback : (onPhotoAfterConfirmed: (Uri) -> Unit) -> Unit,
+            navigateBackCallback: (reportWritten : Boolean) -> Unit,
+            takeBeforePhotoCallback : (address: String, onPhotoBeforeConfirmed: (Uri) -> Unit) -> Unit,
+            takeAfterPhotoCallback : (address: String, onPhotoAfterConfirmed: (Uri) -> Unit) -> Unit,
             garbageSite: GarbageSite,
         ): GarbageSiteComponent =
             DefaultGarbageSiteComponent(
                 componentContext = componentContext,
+                waybillRepository = waybillRepository,
                 takeBeforePhotoCallback = takeBeforePhotoCallback,
                 takeAfterPhotoCallback = takeAfterPhotoCallback,
                 navigateBackCallback = navigateBackCallback,

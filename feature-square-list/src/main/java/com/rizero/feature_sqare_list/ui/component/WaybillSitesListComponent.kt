@@ -55,7 +55,7 @@ fun WaybillSitesList(
             .fillMaxWidth()
     ) {
         Text(
-            text = "Ближайшие площадки (3)",
+            text = "Ближайшие площадки (${nearestGarbageSiteList?.size?:"?"})",
             color = Color.White,
             fontSize = 16.sp
         )

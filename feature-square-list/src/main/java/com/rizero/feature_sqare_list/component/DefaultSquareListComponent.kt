@@ -9,6 +9,7 @@ import com.rizero.core_data.model.GarbageSite
 import com.rizero.core_data.repository.LocationRepository
 import com.rizero.core_data.repository.UncollectedReasonRepository
 import com.rizero.core_data.repository.WaybillRepository
+import com.rizero.feature_sqare_list.store.GarbageSiteListStore
 import com.rizero.feature_sqare_list.store.GarbageSiteListStoreFactory
 import org.koin.core.annotation.Single
 
@@ -17,7 +18,10 @@ class DefaultSquareListComponent (
     val locationRepository: LocationRepository,
     val uncollectedReasonRepository: UncollectedReasonRepository,
     val waybillRepository: WaybillRepository,
-    val garbageSiteSelectedCallback : (garbageSite : GarbageSite) -> Unit,
+    val garbageSiteSelectedCallback : (
+        garbageSite : GarbageSite,
+        onGarbageSiteResult : (Boolean)-> Unit
+            ) -> Unit,
     val finishShiftCallback : () -> Unit,
     val storeFactory: StoreFactory = DefaultStoreFactory()
 ) : SquareListComponent, ComponentContext by componentContext {
@@ -34,11 +38,23 @@ class DefaultSquareListComponent (
     override val state = store.stateFlow(lifecycle)
 
     override fun openGarbageSite(garbageSite: GarbageSite) {
-        garbageSiteSelectedCallback(garbageSite)
+        garbageSiteSelectedCallback(garbageSite){ resultWritten->
+            if (resultWritten){
+                updateWaybill()
+            }
+        }
     }
 
     override fun finishShift() {
         finishShiftCallback()
+    }
+
+    override fun fetchWaybill() {
+        store.accept(GarbageSiteListStore.Intent.RefreshWaybill)
+    }
+
+    override fun updateWaybill() {
+        store.accept(GarbageSiteListStore.Intent.UpdateWaybill)
     }
 
     @Single
@@ -49,7 +65,7 @@ class DefaultSquareListComponent (
     ) : SquareListComponent.Factory {
         override fun invoke(
             componentContext: ComponentContext,
-            openGarbageSiteCallback : (garbageSite : GarbageSite) -> Unit,
+            openGarbageSiteCallback : (garbageSite : GarbageSite, onGarbageSiteResult : (Boolean)-> Unit ) -> Unit,
             finishShiftCallback : () -> Unit,
         ): SquareListComponent =
             DefaultSquareListComponent(

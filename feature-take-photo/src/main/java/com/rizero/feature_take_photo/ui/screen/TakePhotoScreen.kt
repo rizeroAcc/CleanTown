@@ -117,7 +117,7 @@ fun TakePhotoScreen(takePhotoComponent: TakePhotoComponent){
         ) {
             IconButton(
                 onClick = {
-
+                    takePhotoComponent.navigateBack()
                 }
             ) {
                 Icon(
@@ -175,6 +175,7 @@ fun TakePhotoScreen(takePhotoComponent: TakePhotoComponent){
                 IconButton(
                     onClick = {
                         takePhoto(
+                            address = takePhotoComponent.address,
                             imageCapture = imageCapture,
                             executor = mainExecutor,
                             context = context,
@@ -198,6 +199,7 @@ fun TakePhotoScreen(takePhotoComponent: TakePhotoComponent){
 }
 
 private fun takePhoto(
+    address: String,
     imageCapture: ImageCapture?,
     executor: Executor,
     context: Context,
@@ -213,7 +215,7 @@ private fun takePhoto(
                 image.close()
 
                 // Добавляем водяной знак
-                val watermarkedBitmap = addWatermark(originalBitmap)
+                val watermarkedBitmap = addWatermark(originalBitmap,address)
 
                 // Сохраняем с водяным знаком
                 saveBitmapWithWatermark(context, watermarkedBitmap, callback)
@@ -225,7 +227,7 @@ private fun takePhoto(
         }
     )
 }
-private fun addWatermark(original: Bitmap): Bitmap {
+private fun addWatermark(original: Bitmap, address: String): Bitmap {
     val result = original.copy(Bitmap.Config.ARGB_8888, true)
     val canvas = Canvas(result)
 
@@ -241,11 +243,45 @@ private fun addWatermark(original: Bitmap): Bitmap {
         .format(System.currentTimeMillis())
 
     val padding = 50f
-    val yPosition = result.height - 80f
+    val lineHeight = paint.textSize * 1.1f  // небольшой отступ между строками
 
-    canvas.drawText(dateTime, padding, yPosition, paint)
+    // Первая строка — дата и время
+    val yDate = result.height - padding
+    canvas.drawText(dateTime, padding, yDate, paint)
+
+    // Вторая строка — адрес (чуть меньшим шрифтом, если текст длинный)
+    val addressPaint = Paint(paint).apply {
+        textSize = 42f  // чуть меньше, чтобы адрес лучше влезал
+    }
+
+    // Перенос длинного адреса на несколько строк (опционально)
+    val addressLines = address.splitByLength(50) // можно улучшить
+
+    addressLines.forEachIndexed { index, line ->
+        val yAddress = yDate - lineHeight * (index + 1)
+        canvas.drawText(line, padding, yAddress, addressPaint)
+    }
 
     return result
+}
+
+private fun String.splitByLength(maxLength: Int): List<String> {
+    val words = this.split(" ")
+    val lines = mutableListOf<String>()
+    var currentLine = StringBuilder()
+
+    for (word in words) {
+        if (currentLine.length + word.length + 1 > maxLength) {
+            lines.add(currentLine.toString().trim())
+            currentLine = StringBuilder(word)
+        } else {
+            if (currentLine.isNotEmpty()) currentLine.append(" ")
+            currentLine.append(word)
+        }
+    }
+    if (currentLine.isNotEmpty()) lines.add(currentLine.toString().trim())
+
+    return lines
 }
 
 private fun saveBitmapWithWatermark(

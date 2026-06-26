@@ -21,6 +21,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,10 +35,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rizero.feature_finish_shift.R
+import com.rizero.feature_finish_shift.component.DataSyncComponent
+import com.rizero.feature_finish_shift.component.MockDataSyncComponent
+import com.rizero.feature_finish_shift.store.SyncDataStore
 import com.rizero.shared_ui.AppColors
 
 @Composable
-fun DataSyncScreen(){
+fun DataSyncScreen(dataSyncComponent: DataSyncComponent){
+    val state by dataSyncComponent.state.collectAsState()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -51,67 +57,98 @@ fun DataSyncScreen(){
                 .padding(top = 12.dp)
         )
         HorizontalDivider(Modifier.padding(vertical = 8.dp))
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.weight(1f).fillMaxWidth()
-        ) {
-            CircularProgressWithPercentage(
-                progress = 0.5f,
-                modifier = Modifier
-                    .padding(12.dp)
-                    .sizeIn(
-                        150.dp,
-                        150.dp,
-                        250.dp,
-                        250.dp
+        when(val syncState = state.syncState){
+            SyncDataStore.State.SyncState.Init -> {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.weight(1f).fillMaxWidth()
+                ){
+                    Text(
+                        text = "Загрузка...",
+                        fontSize = 20.sp,
+                        color = AppColors.defaultTextColor
                     )
-            )
-            Text(
-                text = "Отправка данных на сервер",
-                color = AppColors.defaultTextColor,
-                fontSize = 20.sp
-            )
-            Text(
-                text = "Не отключайте интернет\nи не закрывайте приложение",
-                color = Color.LightGray,
-                fontSize = 16.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
-            )
-            HorizontalDivider()
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .padding(vertical = 12.dp)
-                    .fillMaxWidth()
-            ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.update_clock),
-                    contentDescription = "Загрузка",
-                    tint = Color.Yellow,
-                    modifier = Modifier
-                        .padding(start = 12.dp)
-                        .size(36.dp)
-                )
-                Text(
-                    text = "Отпрвлено площадок:",
-                    color = Color.LightGray,
-                    fontSize = 18.sp,
-                    modifier = Modifier.padding(start = 12.dp).weight(1f)
-                )
-                Text(
-                    text = "4 из 8",
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    modifier = Modifier.padding(end = 16.dp)
-                )
+                }
             }
-            HorizontalDivider()
+            is SyncDataStore.State.SyncState.Sync -> {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.weight(1f).fillMaxWidth()
+                ) {
+                    CircularProgressWithPercentage(
+                        progress = syncState.syncCount.toFloat()/syncState.total,
+                        modifier = Modifier
+                            .padding(12.dp)
+                            .sizeIn(
+                                150.dp,
+                                150.dp,
+                                250.dp,
+                                250.dp
+                            )
+                    )
+                    Text(
+                        text = "Отправка данных на сервер",
+                        color = AppColors.defaultTextColor,
+                        fontSize = 20.sp
+                    )
+                    Text(
+                        text = "Не отключайте интернет\nи не закрывайте приложение",
+                        color = Color.LightGray,
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
+                    )
+                    HorizontalDivider()
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(vertical = 12.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.update_clock),
+                            contentDescription = "Загрузка",
+                            tint = Color.Yellow,
+                            modifier = Modifier
+                                .padding(start = 12.dp)
+                                .size(36.dp)
+                        )
+                        Text(
+                            text = "Отпрвлено площадок:",
+                            color = Color.LightGray,
+                            fontSize = 18.sp,
+                            modifier = Modifier.padding(start = 12.dp).weight(1f)
+                        )
+                        Text(
+                            text = "${syncState.syncCount} из ${syncState.total}",
+                            color = Color.White,
+                            fontSize = 20.sp,
+                            modifier = Modifier.padding(end = 16.dp)
+                        )
+                    }
+                    HorizontalDivider()
+                }
+            }
+            SyncDataStore.State.SyncState.SyncFinished -> {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.weight(1f).fillMaxWidth()
+                ){
+                    Text(
+                        text = "Синхронизация завершена",
+                        fontSize = 20.sp,
+                        color = AppColors.defaultTextColor
+                    )
+                }
+            }
         }
+
         Button(
+            enabled = state.syncState is SyncDataStore.State.SyncState.SyncFinished,
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(
+                disabledContainerColor = AppColors.lightBackgroundColor,
                 containerColor = AppColors.buttonBackgroundColor
             ),
             onClick = {
@@ -172,5 +209,5 @@ fun CircularProgressWithPercentage(
 @Composable
 @Preview
 fun DataSyncScreenPreview(){
-    DataSyncScreen()
+    DataSyncScreen(MockDataSyncComponent())
 }

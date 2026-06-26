@@ -2,24 +2,30 @@ package com.rizero.core_database.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Transaction
-import com.rizero.core_database.entity.Waybill
-import java.util.UUID
+import androidx.room.Upsert
+import com.rizero.core_database.entity.WaybillEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WaybillDao {
-    @Insert
-    suspend fun insertWaybill(waybill: Waybill)
+    @Upsert
+    suspend fun insertWaybill(waybill: WaybillEntity)
     @Delete
-    suspend fun deleteWaybill(waybill: Waybill)
+    suspend fun deleteWaybill(waybill: WaybillEntity)
     @Query("""
         SELECT * 
         FROM waybills 
         WHERE date =:date 
         AND driver =:driver
     """)
-    suspend fun getDailyWaybill(driver : String, date : String) : Waybill?
+    fun getDailyWaybillUpdates(driver : String, date : String) : Flow<WaybillEntity?>
+
+    @Query("""
+        SELECT * 
+        FROM waybills 
+        WHERE date =:date 
+        AND driver =:driver
+    """)
+    suspend fun getDailyWaybill(driver : String, date : String) : WaybillEntity?
 }

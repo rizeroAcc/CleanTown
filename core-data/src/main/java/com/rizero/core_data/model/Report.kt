@@ -22,7 +22,8 @@ data class Report(
     val photoBefore : Uri?,
     @Serializable(with = UriSerializer::class)
     val photoAfter : Uri?,
-    val uncollectedReason : UncollectedReason?
+    val uncollectedReason : UncollectedReason?,
+    val send : Boolean = false,
 ){
     companion object {
         fun fromEntity(reportEntity : ReportWithUncollectedReason) : Report =
@@ -44,7 +45,8 @@ fun Report.toEntity() : ReportEntity =
         photoBefore = this.photoBefore?.toString(),
         photoAfter = this.photoAfter?.toString(),
         collected = this.collected,
-        uncollectedReasonID = this.uncollectedReason?.id
+        uncollectedReasonID = this.uncollectedReason?.id,
+        send = send,
     )
 
 fun Report.toDTO() : ReportDTO =

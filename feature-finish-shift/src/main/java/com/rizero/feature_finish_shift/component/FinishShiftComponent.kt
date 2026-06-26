@@ -5,6 +5,8 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.slot.ChildSlot
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
+import com.rizero.core_data.model.GarbageSite
+import com.rizero.core_data.model.UncollectedReason
 import com.rizero.feature_finish_shift.store.FinishShiftStore
 import com.rizero.feature_uncollect_reason.component.MockUncollectedReasonComponent
 import com.rizero.feature_uncollect_reason.component.UncollectedReasonComponent
@@ -15,10 +17,12 @@ interface FinishShiftComponent {
     val uncollectedReasonDialog : Value<ChildSlot<*,UncollectedReasonComponent>>
     val state : StateFlow<FinishShiftStore.State>
     fun selectUncollectedReason()
+    fun writeUncollectedReason()
 
     fun interface Factory{
         operator fun invoke(
-            componentContext: ComponentContext
+            componentContext: ComponentContext,
+            onUncollectedReasonWritten : ()-> Unit,
         ) : FinishShiftComponent
     }
 }
@@ -36,8 +40,12 @@ class MockFinishShiftComponent(
         )
 
     override val state: StateFlow<FinishShiftStore.State>
-        get() = MutableStateFlow(mockState?: FinishShiftStore.State())
+        get() = MutableStateFlow(mockState?: FinishShiftStore.State(
+            uncollectedReason = null,
+            uncollectedGarbageSites = FinishShiftStore.State.UncollectedGarbageSites.Loading
+        ))
 
     override fun selectUncollectedReason() = Unit
+    override fun writeUncollectedReason() = Unit
 
 }

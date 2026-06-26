@@ -29,6 +29,7 @@ import com.rizero.core_data.model.Waybill
 import com.rizero.feature_sqare_list.component.MockSquareListComponent
 import com.rizero.feature_sqare_list.component.SquareListComponent
 import com.rizero.feature_sqare_list.store.GarbageSiteListStore
+import com.rizero.feature_sqare_list.ui.component.GarbageSiteMap
 import com.rizero.feature_sqare_list.ui.component.SynchronizingBar
 import com.rizero.feature_sqare_list.ui.component.TwoSegmentAnimatedSwitch
 import com.rizero.feature_sqare_list.ui.component.TwoSegmentAnimatedSwitchPosition
@@ -39,6 +40,7 @@ import org.maplibre.compose.camera.CameraPosition
 import org.maplibre.compose.camera.rememberCameraState
 import org.maplibre.compose.map.MaplibreMap
 import org.maplibre.compose.style.BaseStyle
+import org.maplibre.compose.style.BaseStyle.*
 import org.maplibre.compose.style.rememberStyleState
 import org.maplibre.spatialk.geojson.Position
 import java.time.LocalDateTime
@@ -76,117 +78,128 @@ fun SquareListScreen(squareListComponent: SquareListComponent){
                 )
                 Text(
                     text = when(val state = state.waybillState){
+                        is GarbageSiteListStore.State.WaybillState.Error -> "Ошибка загрузки путевого листа: ${state.message}"
+                        is GarbageSiteListStore.State.WaybillState.InitialLoading -> "Путевой лист загружается ${
+                            if (state.dataSource == GarbageSiteListStore.State.DataSource.CACHE) 
+                                "из памяти"
+                            else
+                                "с сервера"
+                        }"
                         is GarbageSiteListStore.State.WaybillState.Loaded -> "Путевой лист от ${state.waybill.date}"
-                        GarbageSiteListStore.State.WaybillState.Loading -> "Путевой лист загружается"
-                        is GarbageSiteListStore.State.WaybillState.LoadingError -> "Ошибка загрузки путевого листа"
-                        GarbageSiteListStore.State.WaybillState.WaybillNotFound -> "Не найден текущий путевой лист"
                     },
                     fontSize = 12.sp,
                     color = Color.White,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
-            if (state.currentLocationState is GarbageSiteListStore.State.LocationState.LocationReceived) {
-                Text(
-                    text = "Координаты: ${(state.currentLocationState as GarbageSiteListStore.State.LocationState.LocationReceived).location.latitude} , ${(state.currentLocationState as GarbageSiteListStore.State.LocationState.LocationReceived).location.longitude}",
-                    color = Color.White
-                    )
-            }
 
             when(val waybillState = state.waybillState){
-                GarbageSiteListStore.State.WaybillState.Loading -> {
+                is GarbageSiteListStore.State.WaybillState.InitialLoading -> {
                     CircularProgressIndicator(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth()
                     )
                 }
-                is GarbageSiteListStore.State.WaybillState.LoadingError -> {
+                else -> {
+                    if (waybillState is GarbageSiteListStore.State.WaybillState.Error && waybillState.cachedWaybill == null){
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Button(
+                                onClick = {
 
-                }
-                GarbageSiteListStore.State.WaybillState.WaybillNotFound -> {
-
-                }
-                is GarbageSiteListStore.State.WaybillState.Loaded -> {
-                    SynchronizingBar(waybillState)
-                    TwoSegmentAnimatedSwitch(
-                        selected = if (selectedSquareDisplay == SelectedSquareDisplay.LIST)
-                            TwoSegmentAnimatedSwitchPosition.LEFT
-                        else
-                            TwoSegmentAnimatedSwitchPosition.RIGHT,
-                        leftContent = {
-                            Text(
-                                text = "Список",
-                                color = if (selectedSquareDisplay == SelectedSquareDisplay.LIST)
-                                    Color.Green
-                                else
-                                    Color.White,
-                            )
-                        },
-                        rightContent = {
-                            Text(
-                                text = "На карте",
-                                color = if (selectedSquareDisplay == SelectedSquareDisplay.MAP)
-                                    Color.Green
-                                else
-                                    Color.White,
-                            )
-                        },
-                        onLeftClick = {
-                            selectedSquareDisplay = SelectedSquareDisplay.LIST
-                        },
-                        onRightClick = {
-                            selectedSquareDisplay = SelectedSquareDisplay.MAP
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                    )
-                    if (selectedSquareDisplay == SelectedSquareDisplay.LIST){
-                        WaybillSitesList(
-                            //TODO Оптимизация (вынести рассчет в стор и хранить ближайшие в стейте)
-                            nearestGarbageSiteList = if (state.distanceToGarbageSitesCalculated) {
-                                waybillState.waybill.garbageSites.sortedBy { it.distanceTo!! }.take(3)
-                            } else null,
-                            garbageSiteList = waybillState.waybill.garbageSites,
-                            allSquaresExpanded = true,
-                            nearestSquaresExpanded = false
-                        ){ garbageSite ->
-                            squareListComponent.openGarbageSite(garbageSite)
+                                }
+                            ) {
+                                Text("Повторить загрузку")
+                            }
                         }
-                    } else {
-                        val cameraState = rememberCameraState(CameraPosition(
-                            zoom = 16.0,
-                            target = Position(latitude = 51.657063, longitude = 39.205146)
-                        ))
-                        val styleState = rememberStyleState()
-                        MaplibreMap(
-                            baseStyle = BaseStyle.Uri("https://tiles.openfreemap.org/styles/liberty"),
-                            cameraState = cameraState,
-                            styleState = styleState,
-                            modifier = Modifier.padding(2.dp)
-                        ){
-
+                    }else{
+                        val waybill = when(waybillState){
+                            is GarbageSiteListStore.State.WaybillState.Error -> waybillState.cachedWaybill!!
+                            is GarbageSiteListStore.State.WaybillState.Loaded -> waybillState.waybill
                         }
-                    }
-                    Button(
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = AppColors.buttonBackgroundColor
-                        ),
-                        onClick = {
-                            squareListComponent.finishShift()
-                        },
-                        modifier = Modifier
-                            .padding(vertical = 24.dp)
-                            .fillMaxWidth(0.7f)
-                            .height(50.dp)
-                    ) {
-                        Text(
-                            text = "Завершить смену"
+                        SynchronizingBar(waybillState){
+                            squareListComponent.fetchWaybill()
+                        }
+                        TwoSegmentAnimatedSwitch(
+                            selected = if (selectedSquareDisplay == SelectedSquareDisplay.LIST)
+                                TwoSegmentAnimatedSwitchPosition.LEFT
+                            else
+                                TwoSegmentAnimatedSwitchPosition.RIGHT,
+                            leftContent = {
+                                Text(
+                                    text = "Список",
+                                    color = if (selectedSquareDisplay == SelectedSquareDisplay.LIST)
+                                        Color.Green
+                                    else
+                                        Color.White,
+                                )
+                            },
+                            rightContent = {
+                                Text(
+                                    text = "На карте",
+                                    color = if (selectedSquareDisplay == SelectedSquareDisplay.MAP)
+                                        Color.Green
+                                    else
+                                        Color.White,
+                                )
+                            },
+                            onLeftClick = {
+                                selectedSquareDisplay = SelectedSquareDisplay.LIST
+                            },
+                            onRightClick = {
+                                selectedSquareDisplay = SelectedSquareDisplay.MAP
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp)
                         )
+                        if (selectedSquareDisplay == SelectedSquareDisplay.LIST){
+                            WaybillSitesList(
+                                nearestGarbageSiteList = when(waybillState){
+                                    is GarbageSiteListStore.State.WaybillState.Error -> waybillState.nearestGarbageSites
+                                    is GarbageSiteListStore.State.WaybillState.Loaded -> waybillState.nearestGarbageSites
+                                },
+                                garbageSiteList = waybill.garbageSites,
+                                allSquaresExpanded = true,
+                                nearestSquaresExpanded = false
+                            ){ garbageSite ->
+                                squareListComponent.openGarbageSite(garbageSite)
+                            }
+                        } else {
+                            GarbageSiteMap(
+                                garbageSites = waybill.garbageSites,
+                                locationState = state.currentLocationState,
+                                onGarbageSiteSelected = { garbageSite->
+                                    squareListComponent.openGarbageSite(garbageSite = garbageSite)
+                                },
+                                modifier = Modifier.padding(2.dp)
+                            )
+                        }
+                        Button(
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = AppColors.buttonBackgroundColor
+                            ),
+                            onClick = {
+                                squareListComponent.finishShift()
+                            },
+                            modifier = Modifier
+                                .padding(vertical = 24.dp)
+                                .fillMaxWidth(0.7f)
+                                .height(50.dp)
+                        ) {
+                            Text(
+                                text = "Завершить смену"
+                            )
+                        }
                     }
+
                 }
+
+
             }
         }
     }
@@ -211,10 +224,10 @@ fun LoadedSynchronizedSquareListScreenPreview(){
                                 report = null,
                             )
                         ),
+                        updateTime = LocalDateTime.now(),
                         id = UUID.randomUUID().toString()
                     ),
-                    loadTime = LocalDateTime.now(),
-                    synchronized = true,
+
             ),
             currentLocationState = GarbageSiteListStore.State.LocationState.Loading
         ))
@@ -244,10 +257,9 @@ fun LoadedUnsynchronizedSquareListScreenPreview(){
                                     report = null,
                                 )
                             ),
+                            updateTime = LocalDateTime.now(),
                             id = UUID.randomUUID().toString()
                         ),
-                        loadTime = LocalDateTime.now(),
-                        synchronized = false
                     ),
                     currentLocationState = GarbageSiteListStore.State.LocationState.Loading
                 )
