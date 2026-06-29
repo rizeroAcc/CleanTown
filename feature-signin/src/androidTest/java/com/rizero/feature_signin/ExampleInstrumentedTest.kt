@@ -1,4 +1,4 @@
-package com.rizero.featutre_signin
+package com.rizero.feature_signin
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

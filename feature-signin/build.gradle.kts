@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.rizero.featutre_signin"
+    namespace = "com.rizero.feature_signin"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1

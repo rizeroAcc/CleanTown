@@ -33,7 +33,8 @@ data class Report(
                 collected = reportEntity.report.collected,
                 photoBefore = reportEntity.report.photoBefore?.toUri(),
                 photoAfter = reportEntity.report.photoAfter?.toUri(),
-                uncollectedReason = reportEntity.uncollectedReason?.let { UncollectedReason.fromEntity(it) }
+                uncollectedReason = reportEntity.uncollectedReason?.let { UncollectedReason.fromEntity(it) },
+                send = reportEntity.report.send
             )
     }
 }

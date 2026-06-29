@@ -9,7 +9,7 @@ import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.rizero.cleantown.component.RootComponent
 import com.rizero.feature_request_permissions.ui.RequestPermissionScreen
-import com.rizero.featutre_signin.ui.screen.SignInScreen
+import com.rizero.feature_signin.ui.screen.SignInScreen
 
 @Composable
 fun RootScreen(rootComponent: RootComponent){

@@ -1,4 +1,4 @@
-package com.rizero.featutre_signin.ui.screen
+package com.rizero.feature_signin.ui.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -9,45 +9,29 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.BlurEffect
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TileMode
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.rizero.featutre_signin.R
-import com.rizero.featutre_signin.component.MockSignInComponent
-import com.rizero.featutre_signin.component.SignInComponent
-import com.rizero.featutre_signin.ui.component.LoginTextField
-import com.rizero.featutre_signin.ui.component.PasswordTextField
+import com.rizero.feature_signin.R
+import com.rizero.feature_signin.component.MockSignInComponent
+import com.rizero.feature_signin.component.SignInComponent
+import com.rizero.feature_signin.store.SignInStore
+import com.rizero.feature_signin.ui.component.LoginTextField
+import com.rizero.feature_signin.ui.component.PasswordTextField
 import com.rizero.shared_ui.AppColors
-//TODO Сделать вывод ошибок
+import kotlinx.coroutines.flow.MutableStateFlow
 @Composable
 fun SignInScreen(signInComponent: SignInComponent){
     val state by signInComponent.state.collectAsState()
@@ -106,6 +90,18 @@ fun SignInScreen(signInComponent: SignInComponent){
                 .fillMaxWidth()
         )
 
+        if (state.error !=  null){
+            Text(
+                text = when(state.error!!){
+                    SignInStore.State.Error.NoInternetConnection -> "Нет соединения с интернетом"
+                    SignInStore.State.Error.WrongCredentials -> "Неверный логин или пароль"
+                },
+                color = Color.Red,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(top = 12.dp)
+            )
+        }
+
         Button(
             enabled = !state.authorizing,
             onClick = {
@@ -129,4 +125,12 @@ fun SignInScreen(signInComponent: SignInComponent){
 @Preview(showBackground = true)
 fun SingInDefaultPreview(){
     SignInScreen(MockSignInComponent())
+}
+
+@Composable
+@Preview(showBackground = true)
+fun SingInErrPreview(){
+    SignInScreen(MockSignInComponent(mockState = MutableStateFlow(SignInStore.State(
+        error = SignInStore.State.Error.WrongCredentials
+    ))))
 }

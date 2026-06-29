@@ -1,8 +1,8 @@
-package com.rizero.featutre_signin.component
+package com.rizero.feature_signin.component
 
 import com.arkivanov.decompose.ComponentContext
 import com.rizero.core_data.model.Driver
-import com.rizero.featutre_signin.store.SignInStore
+import com.rizero.feature_signin.store.SignInStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 

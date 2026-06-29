@@ -1,7 +1,6 @@
 package com.rizero.cleantown.component
 
 import com.arkivanov.decompose.ComponentContext
-import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.arkivanov.decompose.router.slot.ChildSlot
 import com.arkivanov.decompose.router.slot.SlotNavigation
 import com.arkivanov.decompose.router.slot.activate
@@ -13,7 +12,7 @@ import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.value.Value
 import com.rizero.cleantown.component.RootComponent.Child.*
 import com.rizero.feature_request_permissions.component.RequestPermissionComponent
-import com.rizero.featutre_signin.component.SignInComponent
+import com.rizero.feature_signin.component.SignInComponent
 import kotlinx.serialization.Serializable
 import org.koin.core.annotation.Single
 

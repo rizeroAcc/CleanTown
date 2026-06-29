@@ -1,4 +1,4 @@
-package com.rizero.featutre_signin
+package com.rizero.feature_signin
 
 import org.junit.Test
 

@@ -1,6 +1,5 @@
-package com.rizero.featutre_signin.store
+package com.rizero.feature_signin.store
 
-import androidx.compose.material3.Label
 import com.arkivanov.mvikotlin.core.store.Reducer
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
@@ -9,7 +8,7 @@ import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import com.rizero.core_data.model.Driver
 import com.rizero.core_data.model.DriverCredentials
 import com.rizero.core_data.repository.DriverRepository
-import com.rizero.featutre_signin.store.SignInStore.*
+import com.rizero.feature_signin.store.SignInStore.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

@@ -1,4 +1,4 @@
-package com.rizero.featutre_signin.component
+package com.rizero.feature_signin.component
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
@@ -9,9 +9,8 @@ import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import com.rizero.core_data.model.Driver
 import com.rizero.core_data.repository.DriverRepository
-import com.rizero.featutre_signin.store.SignInStore
-import com.rizero.featutre_signin.store.SignInStoreFactory
-import kotlinx.coroutines.coroutineScope
+import com.rizero.feature_signin.store.SignInStore
+import com.rizero.feature_signin.store.SignInStoreFactory
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.Single
 
